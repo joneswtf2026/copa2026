@@ -63,15 +63,15 @@ function spKey(id,n)    { return 'SP__'+id+'__'+n; }
 // ── HAPTIC ──
 function vibrate() { if (navigator.vibrate) navigator.vibrate(30); }
 
-// ── TOGGLE — click incrementa repetidas, segurar limpa ──
+// ── TOGGLE — toque simples incrementa, segurar 700ms limpa ──
 let pressTimer = null;
-let pressTarget = null;
+let didLongPress = false;
 
 function handlePress(k, el, isSp) {
-  pressTarget = k;
+  didLongPress = false;
   pressTimer = setTimeout(() => {
+    didLongPress = true;
     pressTimer = null;
-    pressTarget = null;
     owned[k] = false;
     repeats[k] = 0;
     el.classList.remove('have');
@@ -84,11 +84,9 @@ function handlePress(k, el, isSp) {
 }
 
 function handleRelease(k, el, isSp) {
-  if (!pressTimer) { pressTarget=null; return; }
-  clearTimeout(pressTimer);
-  pressTimer = null;
-  pressTarget = null;
-
+  if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
+  if (didLongPress) { didLongPress = false; return; }
+  // toque curto: incrementa
   if (!owned[k]) {
     owned[k] = true;
     repeats[k] = 1;
@@ -108,7 +106,8 @@ function handleRelease(k, el, isSp) {
 }
 
 function cancelPress() {
-  if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; pressTarget = null; }
+  if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
+  didLongPress = false;
 }
 
 function toggle(k, el)   { /* handled by press/release */ }
@@ -140,15 +139,21 @@ function updateCardVisibility(card) {
   if (!card) return;
   const all = card.querySelectorAll('.stk');
   const visible = Array.from(all).filter(s=>!s.classList.contains('hidden-filter'));
-  // esconde o card inteiro se não tem nenhuma figurinha visível
   card.style.display = visible.length === 0 ? 'none' : '';
-  // destaca o card com borda quando está filtrado e tem resultados
+  const hdr = card.querySelector('.group-hdr');
   if (currentFilter !== 'all' && visible.length > 0) {
-    card.style.borderColor = 'var(--green-500)';
-    card.style.boxShadow = '0 0 0 2px var(--green-500)';
+    card.style.outline = '2.5px solid var(--green-400)';
+    card.style.outlineOffset = '0px';
+    if (hdr && !hdr.style.background.includes('gradient')) {
+      hdr.dataset.origBg = hdr.dataset.origBg || hdr.style.background || '';
+      hdr.style.background = 'linear-gradient(90deg, #065f46, #047857)';
+    }
   } else {
-    card.style.borderColor = '';
-    card.style.boxShadow = '';
+    card.style.outline = '';
+    if (hdr && hdr.dataset.origBg !== undefined) {
+      hdr.style.background = hdr.dataset.origBg;
+      delete hdr.dataset.origBg;
+    }
   }
 }
 
@@ -334,7 +339,7 @@ function renderTeam(g, tm) {
     let extraClass='', label=String(n);
     if(n===1) { extraClass=' stk-shield'; }
     else if(n===13) { extraClass=' stk-team'; }
-    return '<div class="stk'+extraClass+h+'" data-k="'+k+'" ontouchstart="handlePress(\''+k+'\',this,false)" ontouchend="handleRelease(\''+k+'\',this,false)" ontouchcancel="cancelPress()" onpointerdown="handlePress(\''+k+'\',this,false)" onpointerup="handleRelease(\''+k+'\',this,false)" onpointerleave="cancelPress()" title="'+code+' '+n+(n===1?' - Escudo':n===13?' - Foto seleção':'')+'">'+label+r+'</div>';
+    return '<div class="stk'+extraClass+h+'" data-k="'+k+'" ontouchstart="event.preventDefault();handlePress(\''+k+'\',this,false)" ontouchend="event.preventDefault();handleRelease(\''+k+'\',this,false)" ontouchcancel="cancelPress()" title="'+code+' '+n+(n===1?' - Escudo':n===13?' - Foto seleção':'')+'">'+label+r+'</div>';
   }).join('');
   return '<div class="group-card'+(allDone?' complete':'')+'" id="card_'+g.id+'_'+code+'">'+
     '<div class="group-hdr">'+
@@ -361,7 +366,7 @@ function renderSpecial(el, id) {
     const icon=(!isCC && FWC_LABELS[n])?FWC_LABELS[n]:'';
     const inner=icon?'<span class="fwc-icon">'+icon+'</span><span class="fwc-num">'+n+'</span>':lbl;
     const r=(repeats[k]||0)>1?'<span class="repeat-badge">x'+repeats[k]+'</span>':'';
-    return '<div class="stk special'+h+'" data-k="'+k+'" ontouchstart="handlePress(\''+k+'\',this,true)" ontouchend="handleRelease(\''+k+'\',this,true)" ontouchcancel="cancelPress()" onpointerdown="handlePress(\''+k+'\',this,true)" onpointerup="handleRelease(\''+k+'\',this,true)" onpointerleave="cancelPress()" title="'+lbl+'">'+inner+r+'</div>';
+    return '<div class="stk special'+h+'" data-k="'+k+'" ontouchstart="event.preventDefault();handlePress(\''+k+'\',this,true)" ontouchend="event.preventDefault();handleRelease(\''+k+'\',this,true)" ontouchcancel="cancelPress()" title="'+lbl+'">'+inner+r+'</div>';
   }).join('');
   const color=isCC?'#b91c1c':'#1e40af';
   el.innerHTML='<div class="group-card'+(have===sp.nums.length?' complete':'')+'">'+
@@ -407,7 +412,7 @@ function onSearch(q) {
       const stickers=numsToShow.map(n=>{
         const k=key(g.id,code,n),h=owned[k]?' have':'';
         const r=(repeats[k]||0)>1?'<span class="repeat-badge">x'+repeats[k]+'</span>':'';
-        return '<div class="stk'+h+'" data-k="'+k+'" ontouchstart="handlePress(\''+k+'\',this,false)" ontouchend="handleRelease(\''+k+'\',this,false)" ontouchcancel="cancelPress()" onpointerdown="handlePress(\''+k+'\',this,false)" onpointerup="handleRelease(\''+k+'\',this,false)" onpointerleave="cancelPress()">'+n+r+'</div>';
+        return '<div class="stk'+h+'" data-k="'+k+'" ontouchstart="event.preventDefault();handlePress(\''+k+'\',this,false)" ontouchend="event.preventDefault();handleRelease(\''+k+'\',this,false)" ontouchcancel="cancelPress()">'+n+r+'</div>';
       }).join('');
       html+='<div class="group-card"><div class="group-hdr"><div class="group-hdr-left"><div class="group-badge">'+g.id+'</div><div><div class="group-name">'+name+'</div><div class="group-prog" id="tc_'+g.id+'_'+code+'">'+have+'/'+count+'</div></div></div><div style="background:rgba(255,255,255,.15);padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700;color:#fff">'+code+'</div></div><div class="team-row"><div class="stickers">'+stickers+'</div></div></div>';
     });
@@ -425,7 +430,7 @@ function onSearch(q) {
     const stickers=numsToShow.map(n=>{
       const k=spKey(sp.id,n),h=owned[k]?' have':'',lbl=isCC?'CC'+n:'FWC'+n;
       const r=(repeats[k]||0)>1?'<span class="repeat-badge">x'+repeats[k]+'</span>':'';
-      return '<div class="stk special'+h+'" data-k="'+k+'" ontouchstart="handlePress(\''+k+'\',this,true)" ontouchend="handleRelease(\''+k+'\',this,true)" ontouchcancel="cancelPress()" onpointerdown="handlePress(\''+k+'\',this,true)" onpointerup="handleRelease(\''+k+'\',this,true)" onpointerleave="cancelPress()">'+lbl+r+'</div>';
+      return '<div class="stk special'+h+'" data-k="'+k+'" ontouchstart="event.preventDefault();handlePress(\''+k+'\',this,true)" ontouchend="event.preventDefault();handleRelease(\''+k+'\',this,true)" ontouchcancel="cancelPress()">'+lbl+r+'</div>';
     }).join('');
     html+='<div class="group-card"><div class="group-hdr" style="background:'+color+'"><div class="group-hdr-left"><div class="group-badge">'+(isCC?'🥤':'🏆')+'</div><div><div class="group-name">'+sp.label+'</div><div class="group-prog">'+have+'/'+sp.nums.length+'</div></div></div></div><div class="team-row"><div class="stickers">'+stickers+'</div></div></div>';
   });
