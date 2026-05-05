@@ -71,8 +71,15 @@ function vibrate() { if (navigator.vibrate) navigator.vibrate(30); }
 // ── TOGGLE — toque simples incrementa, segurar 700ms limpa ──
 let pressTimer = null;
 let didLongPress = false;
+let touchStartX = 0;
+let touchStartY = 0;
 
 function handlePress(k, el, isSp) {
+  // registra posição inicial do toque
+  const touch = event.touches && event.touches[0];
+  touchStartX = touch ? touch.clientX : 0;
+  touchStartY = touch ? touch.clientY : 0;
+
   didLongPress = false;
   pressTimer = setTimeout(() => {
     didLongPress = true;
@@ -91,7 +98,16 @@ function handlePress(k, el, isSp) {
 function handleRelease(k, el, isSp) {
   if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
   if (didLongPress) { didLongPress = false; return; }
-  // toque curto: incrementa
+
+  // verifica se foi scroll (dedo se moveu mais de 10px)
+  const touch = event.changedTouches && event.changedTouches[0];
+  if (touch) {
+    const dx = Math.abs(touch.clientX - touchStartX);
+    const dy = Math.abs(touch.clientY - touchStartY);
+    if (dx > 10 || dy > 10) return; // foi scroll, ignora
+  }
+
+  // toque intencional: incrementa
   if (!owned[k]) {
     owned[k] = true;
     repeats[k] = 1;
