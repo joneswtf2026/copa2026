@@ -9,7 +9,7 @@ body{font-family:'Figtree',system-ui,sans-serif;background:var(--bg);color:var(-
 .topbar-inner{display:flex;align-items:center;justify-content:center;position:relative;min-height:32px;}
 .topbar h1{font-size:20px;font-weight:700;color:#fff;text-align:center;flex:1;}
 .topbar-actions{display:flex;align-items:center;gap:8px;position:absolute;right:0;}
-.fb-user-top{font-size:10px;color:rgba(255,255,255,.7);max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.fb-name{font-size:11px;color:rgba(255,255,255,.8);max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .save-dot{width:7px;height:7px;border-radius:50%;background:var(--green-400);transition:background .3s;}
 .save-dot.saving{background:var(--gold);}
 .icon-btn{background:none;border:none;color:rgba(255,255,255,.85);font-size:17px;cursor:pointer;padding:3px;line-height:1;}

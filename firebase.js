@@ -93,14 +93,17 @@ function fbSubscribe() {
 
 // ── UI ──
 function updateAuthUI(user) {
-  const btn = document.getElementById('fbAuthBtn');
-  if (!btn) return;
+  const topbar = document.getElementById('fbTopbar');
+  const name   = document.getElementById('fbUserName');
+  const btn    = document.getElementById('fbAuthBtn');
   if (user) {
-    btn.textContent = 'Sair do Google';
-    btn.onclick = window.fbLogout;
+    if (topbar) topbar.style.display = 'flex';
+    if (name)   name.textContent = user.displayName ? user.displayName.split(' ')[0] : '👤';
+    if (btn)    { btn.textContent = 'Sair do Google'; btn.onclick = window.fbLogout; }
   } else {
-    btn.textContent = 'Entrar com Google';
-    btn.onclick = window.fbLogin;
+    if (topbar) topbar.style.display = 'none';
+    if (name)   name.textContent = '';
+    if (btn)    { btn.textContent = 'Entrar com Google'; btn.onclick = window.fbLogin; }
   }
 }
 
