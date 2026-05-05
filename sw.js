@@ -2,7 +2,7 @@ const CACHE = 'copa2026-static-v1';
 
 // Só cacheia assets estáticos que nunca mudam (ícones)
 // HTML, JS e CSS sempre vêm da rede para garantir atualizações
-const STATIC = ['/copa2026/icon-192.png', '/copa2026/icon-512.png', '/copa2026/logo-fifa.png'];
+const STATIC = ['./icon-192.png', './icon-512.png', './logo-fifa.png'];
 
 self.addEventListener('install', e => {
   e.waitUntil(
