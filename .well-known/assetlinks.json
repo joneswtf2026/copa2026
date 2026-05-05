@@ -1,0 +1,10 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "io.github.joneswtf2026.twa",
+    "sha256_cert_fingerprints": [
+      "CE:90:9B:EF:64:9A:38:A0:C7:B3:5E:A6:5B:13:F8:54:CD:5A:76:9D:1B:C9:0F:D6:2E:BA:21:26:49:FB:69:E8"
+    ]
+  }
+}]
