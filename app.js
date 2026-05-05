@@ -125,9 +125,6 @@ function handleRelease(k, el, isSp) {
   setTimeout(()=>{ applyFilter(el); updateCardVisibility(el.closest('.group-card')); }, 300);
   if (repeats[k] > 1) showToast('x'+repeats[k]+' repetidas');
 }
-  if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
-  didLongPress = false;
-}
 
 function toggle(k, el)   { /* handled by press/release */ }
 function toggleSp(k, el) { /* handled by press/release */ }
