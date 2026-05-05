@@ -1,4 +1,4 @@
-const CACHE = 'copa2026-shell-v2';
+const CACHE = 'copa2026-shell-v3';
 
 // Só cacheia o shell básico — JS e CSS sempre vêm da rede
 const SHELL = ['/', '/index.html', '/icon-192.png', '/icon-512.png'];
