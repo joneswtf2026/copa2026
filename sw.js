@@ -1,4 +1,4 @@
-const CACHE = 'copa2026-static-v1';
+const CACHE = 'copa2026-static-v2';
 
 // Só cacheia assets estáticos que nunca mudam (ícones)
 // HTML, JS e CSS sempre vêm da rede para garantir atualizações
