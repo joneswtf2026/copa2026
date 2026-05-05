@@ -1,0 +1,74 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#064e3b">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="Copa 2026">
+<meta name="description" content="Controle suas figurinhas da Copa do Mundo 2026">
+<title>Figurinhas Copa 2026</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="stylesheet" href="style.css?v=14">
+</head>
+<body>
+
+<div id="splash">
+  <img src="logo-fifa.png" style="width:120px;height:120px;object-fit:contain;animation:bounce .8s infinite alternate;" alt="Copa 2026">
+  <h2>Copa do Mundo 2026</h2>
+  <p>Carregando seu álbum...</p>
+</div>
+
+<div class="fixed-header" id="fixedHeader">
+  <div class="topbar">
+    <div class="topbar-inner">
+      <h1>⚽ Copa 2026</h1>
+    </div>
+    <div class="search-wrap" id="searchWrap">
+      <input class="search-input" id="searchInput" type="text"
+        placeholder="Ex: BRA, 15, Argentina, FWC3, CC2..."
+        oninput="onSearch(this.value)">
+    </div>
+  </div>
+  <div class="stats-bar">
+    <div class="stats">
+      <div class="stat"><div class="val" id="sHave">0</div><div class="lbl">Tenho</div></div>
+      <div class="stat"><div class="val" id="sMiss">0</div><div class="lbl">Faltam</div></div>
+      <div class="stat"><div class="val gold" id="sPct">0%</div><div class="lbl">Completo</div></div>
+    </div>
+    <div class="progress-wrap">
+      <div class="pbar"><div class="pbar-fill" id="pbar" style="width:0%"></div></div>
+      <div class="ppct" id="ppct">0%</div>
+    </div>
+    <div class="filter-wrap">
+      <button class="filter-btn active" id="fAll"     onclick="setFilter('all')">Todas</button>
+      <button class="filter-btn"        id="fMissing" onclick="setFilter('missing')">Faltantes</button>
+      <button class="filter-btn"        id="fHave"    onclick="setFilter('have')">Tenho</button>
+      <button class="filter-btn"        id="fRepeat"  onclick="setFilter('repeat')">Repetidas</button>
+    </div>
+  </div>
+  <div class="tabs-wrap"><div class="tabs" id="tabs"></div></div>
+</div>
+
+<div class="page-body" id="pageBody">
+  <div class="content" id="content"></div>
+  <div class="search-results" id="searchResults" style="display:none"></div>
+  <div class="powered-by">Powered by <strong>Jones Trevisan</strong></div>
+</div>
+
+<div class="bottombar">
+  <button class="btn btn-export"  onclick="exportJSON()">💾 Backup</button>
+  <button class="btn btn-export"  onclick="document.getElementById('importFile').click()">📂 Importar</button>
+  <button class="btn btn-primary" onclick="shareStats()">Compartilhar</button>
+<input type="file" id="importFile" accept=".json" style="display:none" onchange="importJSON(this)">
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="app.js?v=18"></script>
+</body>
+</html>
