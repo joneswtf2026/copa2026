@@ -36,13 +36,15 @@ function load() {
 }
 
 function save() {
-  // salva imediatamente E agenda outro save (para não sobrecarregar)
+  // salva imediatamente E agenda outro save
   localStorage.setItem('copa2026',     JSON.stringify(owned));
   localStorage.setItem('copa2026_rep', JSON.stringify(repeats));
   clearTimeout(saveTimer);
   saveTimer = setTimeout(() => {
     localStorage.setItem('copa2026',     JSON.stringify(owned));
     localStorage.setItem('copa2026_rep', JSON.stringify(repeats));
+    // sincroniza com Firebase se disponível
+    if (window.fbSaveHook) window.fbSaveHook(owned, repeats);
   }, 600);
 }
 
