@@ -125,8 +125,6 @@ function handleRelease(k, el, isSp) {
   setTimeout(()=>{ applyFilter(el); updateCardVisibility(el.closest('.group-card')); }, 300);
   if (repeats[k] > 1) showToast('x'+repeats[k]+' repetidas');
 }
-
-function cancelPress() {
   if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
   didLongPress = false;
 }
@@ -151,9 +149,6 @@ function applyFilter(el) {
   if      (currentFilter==='missing') el.classList.toggle('hidden-filter',  have);
   else if (currentFilter==='have')    el.classList.toggle('hidden-filter', !have);
   else if (currentFilter==='repeat')  el.classList.toggle('hidden-filter', !rep);
-  el.querySelectorAll('.repeat-badge,.fwc-icon,.fwc-num').forEach(c=>c.style.display='');
-  // atualiza visibilidade do card pai
-  updateCardVisibility(el.closest('.group-card'));
 }
 
 function updateCardVisibility(card) {
@@ -161,21 +156,6 @@ function updateCardVisibility(card) {
   const all = card.querySelectorAll('.stk');
   const visible = Array.from(all).filter(s=>!s.classList.contains('hidden-filter'));
   card.style.display = visible.length === 0 ? 'none' : '';
-  const hdr = card.querySelector('.group-hdr');
-  if (currentFilter !== 'all' && visible.length > 0) {
-    card.style.outline = '2.5px solid var(--green-400)';
-    card.style.outlineOffset = '0px';
-    if (hdr && !hdr.style.background.includes('gradient')) {
-      hdr.dataset.origBg = hdr.dataset.origBg || hdr.style.background || '';
-      hdr.style.background = 'linear-gradient(90deg, #065f46, #047857)';
-    }
-  } else {
-    card.style.outline = '';
-    if (hdr && hdr.dataset.origBg !== undefined) {
-      hdr.style.background = hdr.dataset.origBg;
-      delete hdr.dataset.origBg;
-    }
-  }
 }
 
 function setFilter(f) {
@@ -183,9 +163,8 @@ function setFilter(f) {
   ['fAll','fMissing','fHave','fRepeat'].forEach(id=>document.getElementById(id).classList.remove('active'));
   const map = {all:'fAll',missing:'fMissing',have:'fHave',repeat:'fRepeat'};
   document.getElementById(map[f]).classList.add('active');
-  document.querySelectorAll('.stk').forEach(el=>applyFilter(el));
-  document.querySelectorAll('.group-card').forEach(card=>updateCardVisibility(card));
-  // esconde tabs de grupos sem resultado quando filtrado
+  // re-renderiza o conteúdo atual com o filtro aplicado
+  renderContent();
   updateTabsVisibility();
 }
 
@@ -384,7 +363,9 @@ function renderContent() {
   if(currentTab==='FWC'||currentTab==='CC'){renderSpecial(el,currentTab);return;}
   const g=GROUPS.find(x=>x.id===currentTab); if(!g) return;
   el.innerHTML=g.teams.map(tm=>renderTeam(g,tm)).join('');
+  // aplica filtro após renderizar
   document.querySelectorAll('.stk').forEach(el=>applyFilter(el));
+  document.querySelectorAll('.group-card').forEach(card=>updateCardVisibility(card));
 }
 
 function renderTeam(g, tm) {
@@ -437,6 +418,7 @@ function renderSpecial(el, id) {
     '<div class="team-row"><div class="stickers">'+stickers+'</div></div>'+
   '</div>';
   document.querySelectorAll('.stk').forEach(el=>applyFilter(el));
+  document.querySelectorAll('.group-card').forEach(card=>updateCardVisibility(card));
 }
 
 // ── SEARCH ──
@@ -653,4 +635,9 @@ if('serviceWorker' in navigator){
   window.addEventListener('load',()=>{
     navigator.serviceWorker.register('./sw.js').catch(()=>{});
   });
+}
+
+function cancelPress() {
+  if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
+  didLongPress = false;
 }
