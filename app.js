@@ -422,7 +422,7 @@ function renderSpecial(el, id) {
   const stickers=sp.nums.map(n=>{
     const k=spKey(id,n),h=owned[k]?' have':'',lbl=isCC?'CC'+n:'FWC'+n;
     const icon=(!isCC && FWC_LABELS[n])?FWC_LABELS[n]:'';
-    const inner=icon?'<span class="fwc-icon">'+icon+'</span><span class="fwc-num">'+n+'</span>':lbl;
+    const inner=lbl;
     const r=(repeats[k]||0)>1?'<span class="repeat-badge">x'+repeats[k]+'</span>':'';
     return '<div class="stk special'+h+'" data-k="'+k+'" ontouchstart="event.preventDefault();handlePress(\''+k+'\',this,true)" ontouchend="event.preventDefault();handleRelease(\''+k+'\',this,true)" ontouchcancel="cancelPress()" title="'+lbl+'">'+inner+r+'</div>';
   }).join('');

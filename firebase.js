@@ -93,15 +93,15 @@ function fbSubscribe() {
 
 // ── UI ──
 function updateAuthUI(user) {
-  const topbar = document.getElementById('fbTopbar');
+  const topBtn = document.getElementById('fbTopBtn');
   const name   = document.getElementById('fbUserName');
   const btn    = document.getElementById('fbAuthBtn');
   if (user) {
-    if (topbar) topbar.style.display = 'flex';
+    if (topBtn) { topBtn.textContent = '🚪'; topBtn.title = 'Sair'; topBtn.onclick = window.fbLogout; }
     if (name)   name.textContent = user.displayName ? user.displayName.split(' ')[0] : '👤';
     if (btn)    { btn.textContent = 'Sair do Google'; btn.onclick = window.fbLogout; }
   } else {
-    if (topbar) topbar.style.display = 'none';
+    if (topBtn) { topBtn.textContent = '☁️'; topBtn.title = 'Sincronizar'; topBtn.onclick = window.fbLogin; }
     if (name)   name.textContent = '';
     if (btn)    { btn.textContent = 'Entrar com Google'; btn.onclick = window.fbLogin; }
   }

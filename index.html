@@ -27,9 +27,9 @@
   <div class="topbar">
     <div class="topbar-inner">
       <h1>⚽ Copa 2026</h1>
-      <div class="topbar-actions" id="fbTopbar" style="display:none">
+      <div class="topbar-actions" id="fbTopbar">
         <span id="fbUserName" class="fb-name"></span>
-        <button class="icon-btn" onclick="fbLogout()" title="Sair">🚪</button>
+        <button class="icon-btn" id="fbTopBtn" onclick="fbLogin()" title="Sincronizar">☁️</button>
       </div>
     </div>
     <div class="search-wrap" id="searchWrap">
@@ -63,13 +63,10 @@
   <div class="search-results" id="searchResults" style="display:none"></div>
 </div>
 
-<div class="powered-by-bar">Powered by <strong>Jones Trevisan</strong> · v1.0.3</div>
+<div class="powered-by-bar">Powered by <strong>Jones Trevisan</strong> · v1.0.5</div>
 
 <div class="bottombar">
-  <button class="btn btn-export"  onclick="exportJSON()">💾 Backup</button>
-  <button class="btn btn-export"  onclick="document.getElementById('importFile').click()">📂 Importar</button>
   <button class="btn btn-primary" onclick="shareStats()">Compartilhar</button>
-  <input type="file" id="importFile" accept=".json" style="display:none" onchange="importJSON(this)">
 </div>
 
 
@@ -87,7 +84,7 @@
   </div>
 </div>
 
-<script src="app.js?v=23"></script>
-<script type="module" src="firebase.js?v=2"></script>
+<script src="app.js?v=24"></script>
+<script type="module" src="firebase.js?v=3"></script>
 </body>
 </html>
