@@ -20,8 +20,8 @@ const FWC_LABELS = {
   17:'🎶',18:'🌎',19:'🔥'
 };
 const SPECIALS = [
-  {id:"FWC",label:"FIFA World Cup History",nums:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19]},
-  {id:"CC", label:"Coca-Cola",             nums:[1,2,3,4,5,6,7,8,9,10,11,12,13,14]},
+  {id:"FWC",label:"FIFA World Cup History",emoji:"👟",nums:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19]},
+  {id:"CC", label:"Coca-Cola",             emoji:"🥤",nums:[1,2,3,4,5,6,7,8,9,10,11,12,13,14]},
 ];
 
 const TOTAL_STICKERS = GROUPS.reduce((a,g)=>a+g.teams.reduce((b,t)=>b+t[2],0),0)
@@ -208,7 +208,7 @@ function updateTeamCount(gid, code) {
   const g = GROUPS.find(x=>x.id===gid), tm = g && g.teams.find(t=>t[1]===code);
   if (!tm) return;
   let c=0; for(let i=1;i<=tm[2];i++) if(owned[key(gid,code,i)]) c++;
-  el.textContent = c+'/'+tm[2];
+  el.textContent = c+'/'+tm[2]+' ('+Math.round(c/tm[2]*100)+'%)';
 }
 
 function checkTeamComplete(gid, code) {
@@ -369,6 +369,7 @@ function renderTeam(g, tm) {
   const [name,code,count,flag]=tm; let have=0;
   for(let i=1;i<=count;i++) if(owned[key(g.id,code,i)]) have++;
   const allDone=have===count;
+  const pct=Math.round(have/count*100);
   const stickers=Array.from({length:count},(_,i)=>{
     const n=i+1,k=key(g.id,code,n),h=owned[k]?' have':'';
     const r=(repeats[k]||0)>1?'<span class="repeat-badge">x'+repeats[k]+'</span>':'';
@@ -381,7 +382,7 @@ function renderTeam(g, tm) {
     '<div class="group-hdr">'+
       '<div class="group-hdr-left">'+
         '<div class="group-badge" onclick="showGroupStats(\''+g.id+'\')">'+g.id+'</div>'+
-        '<div><div class="group-name">'+(flag?flag+' ':'')+name+'</div><div class="group-prog" id="tc_'+g.id+'_'+code+'">'+have+'/'+count+'</div></div>'+
+        '<div><div class="group-name">'+(flag?flag+' ':'')+name+'</div><div class="group-prog" id="tc_'+g.id+'_'+code+'">'+have+'/'+count+' ('+pct+'%)</div></div>'+
       '</div>'+
       '<div style="background:rgba(255,255,255,.15);padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700;color:#fff">'+code+'</div>'+
     '</div>'+
@@ -397,19 +398,19 @@ function renderTeam(g, tm) {
 function renderSpecial(el, id) {
   const sp=SPECIALS.find(s=>s.id===id),isCC=id==='CC';
   const have=sp.nums.filter(n=>owned[spKey(id,n)]).length;
+  const pct=Math.round(have/sp.nums.length*100);
   const stickers=sp.nums.map(n=>{
     const k=spKey(id,n),h=owned[k]?' have':'',lbl=isCC?'CC'+n:'FWC'+n;
-    const icon=(!isCC && FWC_LABELS[n])?FWC_LABELS[n]:'';
-    const inner=lbl;
     const r=(repeats[k]||0)>1?'<span class="repeat-badge">x'+repeats[k]+'</span>':'';
-    return '<div class="stk special'+h+'" data-k="'+k+'" ontouchstart="event.preventDefault();handlePress(\''+k+'\',this,true,event)" ontouchend="event.preventDefault();handleRelease(\''+k+'\',this,true,event)" ontouchcancel="cancelPress()" title="'+lbl+'">'+inner+r+'</div>';
+    return '<div class="stk special'+h+'" data-k="'+k+'" ontouchstart="event.preventDefault();handlePress(\''+k+'\',this,true,event)" ontouchend="event.preventDefault();handleRelease(\''+k+'\',this,true,event)" ontouchcancel="cancelPress()" title="'+lbl+'">'+lbl+r+'</div>';
   }).join('');
   const color=isCC?'#b91c1c':'#1e40af';
+  const icon=sp.emoji||'🏆';
   el.innerHTML='<div class="group-card'+(have===sp.nums.length?' complete':'')+'">'+
     '<div class="group-hdr" style="background:'+color+'">'+
       '<div class="group-hdr-left">'+
-        '<div class="group-badge">'+(isCC?'🥤':'🏆')+'</div>'+
-        '<div><div class="group-name">'+sp.label+'</div><div class="group-prog">'+have+'/'+sp.nums.length+' figurinhas</div></div>'+
+        '<div class="group-badge">'+icon+'</div>'+
+        '<div><div class="group-name">'+sp.label+'</div><div class="group-prog">'+have+'/'+sp.nums.length+' ('+pct+'%)</div></div>'+
       '</div>'+
     '</div>'+
     '<div class="team-row"><div class="stickers">'+stickers+'</div></div>'+
@@ -523,32 +524,33 @@ function shareStats() {
   text+='✅ Tenho: '+have+'/'+TOTAL_STICKERS+' ('+pct+'%)\n';
   text+='❌ Faltam: '+(TOTAL_STICKERS-have)+'\n';
 
-  // Faltantes por seleção
-  let hasMissing=false;
+  // Faltantes — inclui times com NENHUMA figurinha
   let missingText='';
   GROUPS.forEach(g=>{
     g.teams.forEach(tm=>{
       const [name,code,count,flag]=tm;
       const missing=[];
       for(let i=1;i<=count;i++) if(!owned[key(g.id,code,i)]) missing.push(i);
-      if(missing.length>0 && missing.length<count){
+      if(missing.length===count){
+        missingText+=(flag?flag+' ':'')+name+': todas faltam ❌\n';
+      } else if(missing.length>0){
         missingText+=(flag?flag+' ':'')+name+': faltam '+missing.join(', ')+'\n';
-        hasMissing=true;
       }
     });
   });
   SPECIALS.forEach(sp=>{
     const isCC=sp.id==='CC';
+    const emoji=isCC?'🥤':'⚽';
     const missing=sp.nums.filter(n=>!owned[spKey(sp.id,n)]);
-    if(missing.length>0 && missing.length<sp.nums.length){
-      missingText+=sp.label+': faltam '+(isCC?missing.map(n=>'CC'+n):missing.map(n=>'FWC'+n)).join(', ')+'\n';
-      hasMissing=true;
+    if(missing.length===sp.nums.length){
+      missingText+=emoji+' '+sp.label+': todas faltam ❌\n';
+    } else if(missing.length>0){
+      missingText+=emoji+' '+sp.label+': faltam '+(isCC?missing.map(n=>'CC'+n):missing.map(n=>'FWC'+n)).join(', ')+'\n';
     }
   });
-  if(hasMissing){ text+='\n📋 Faltantes para troca:\n'+missingText; }
+  if(missingText) text+='\n📋 Faltantes para troca:\n'+missingText;
 
   // Repetidas
-  let hasRepeats=false;
   let repeatText='';
   GROUPS.forEach(g=>{
     g.teams.forEach(tm=>{
@@ -558,24 +560,24 @@ function shareStats() {
         const k=key(g.id,code,i);
         if(owned[k]&&(repeats[k]||0)>1) reps.push(code+i+'(x'+(repeats[k]-1)+')');
       }
-      if(reps.length){ repeatText+=(flag?flag+' ':'')+name+': '+reps.join(', ')+'\n'; hasRepeats=true; }
+      if(reps.length) repeatText+=(flag?flag+' ':'')+name+': '+reps.join(', ')+'\n';
     });
   });
   SPECIALS.forEach(sp=>{
     const isCC=sp.id==='CC';
+    const emoji=isCC?'🥤':'⚽';
     const reps=[];
     sp.nums.forEach(n=>{
       const k=spKey(sp.id,n);
       if(owned[k]&&(repeats[k]||0)>1) reps.push((isCC?'CC':'FWC')+n+'(x'+(repeats[k]-1)+')');
     });
-    if(reps.length){ repeatText+=sp.label+': '+reps.join(', ')+'\n'; hasRepeats=true; }
+    if(reps.length) repeatText+=emoji+' '+sp.label+': '+reps.join(', ')+'\n';
   });
-  if(hasRepeats){ text+='\n🔄 Tenho para trocar:\n'+repeatText; }
+  if(repeatText) text+='\n🔄 Tenho para trocar:\n'+repeatText;
 
   if(navigator.share) {
     navigator.share({title:'Meu álbum Copa 2026',text})
       .catch(err=>{
-        // só copia se o usuário não cancelou
         if(err.name !== 'AbortError'){
           navigator.clipboard && navigator.clipboard.writeText(text).then(()=>showToast('Resumo copiado!'));
         }
