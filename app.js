@@ -36,6 +36,9 @@ function load() {
 }
 
 function save() {
+  // salva imediatamente E agenda outro save (para não sobrecarregar)
+  localStorage.setItem('copa2026',     JSON.stringify(owned));
+  localStorage.setItem('copa2026_rep', JSON.stringify(repeats));
   clearTimeout(saveTimer);
   saveTimer = setTimeout(() => {
     localStorage.setItem('copa2026',     JSON.stringify(owned));
