@@ -68,13 +68,20 @@
   <input type="file" id="importFile" accept=".json" style="display:none" onchange="importJSON(this)">
 </div>
 
-<!-- Barra de sync Firebase (separada, fácil de remover) -->
-<div class="firebase-bar" id="firebaseBar">
-  <span id="fbUserInfo" class="fb-user"></span>
-  <button id="fbAuthBtn" class="fb-btn" onclick="fbLogin()">☁️ Sincronizar</button>
-</div>
+
 
 <div class="toast" id="toast"></div>
+
+<!-- Modal de sync Firebase -->
+<div class="sync-modal" id="syncModal" style="display:none">
+  <div class="sync-modal-inner">
+    <div class="sync-icon">☁️</div>
+    <div class="sync-title">Sincronizar álbum</div>
+    <div class="sync-desc">Entre com o Google para salvar seu progresso na nuvem e acessar de qualquer dispositivo.</div>
+    <button class="sync-btn-primary" id="fbAuthBtn" onclick="fbLogin()">Entrar com Google</button>
+    <button class="sync-btn-skip" onclick="dismissSyncModal()">Agora não</button>
+  </div>
+</div>
 
 <script src="app.js?v=21"></script>
 <script type="module" src="firebase.js"></script>

@@ -93,21 +93,27 @@ function fbSubscribe() {
 
 // ── UI ──
 function updateAuthUI(user) {
-  const btn  = document.getElementById('fbAuthBtn');
-  const info = document.getElementById('fbUserInfo');
-  const bar  = document.getElementById('firebaseBar');
+  const btn = document.getElementById('fbAuthBtn');
   if (!btn) return;
   if (user) {
-    btn.textContent  = 'Sair';
-    btn.onclick      = window.fbLogout;
-    if (info) info.textContent = user.displayName || user.email;
-    if (bar)  bar.classList.add('logged');
+    btn.textContent = 'Sair do Google';
+    btn.onclick = window.fbLogout;
   } else {
-    btn.textContent  = '☁️ Sincronizar';
-    btn.onclick      = window.fbLogin;
-    if (info) info.textContent = '';
-    if (bar)  bar.classList.remove('logged');
+    btn.textContent = 'Entrar com Google';
+    btn.onclick = window.fbLogin;
   }
+}
+
+window.dismissSyncModal = function() {
+  const modal = document.getElementById('syncModal');
+  if (modal) modal.style.display = 'none';
+  sessionStorage.setItem('syncDismissed', '1');
+};
+
+function showSyncModal() {
+  if (sessionStorage.getItem('syncDismissed')) return;
+  const modal = document.getElementById('syncModal');
+  if (modal) modal.style.display = 'flex';
 }
 
 // ── AUTH STATE ──
@@ -115,6 +121,7 @@ onAuthStateChanged(auth, async (user) => {
   currentUser = user;
   updateAuthUI(user);
   if (user) {
+    window.dismissSyncModal();
     const remote = await fbLoad();
     if (remote) {
       const localCount  = Object.values(owned).filter(Boolean).length;
@@ -135,6 +142,9 @@ onAuthStateChanged(auth, async (user) => {
     }
     syncEnabled = true;
     fbSubscribe();
+  } else {
+    // não logado — mostra modal após 3 segundos
+    setTimeout(showSyncModal, 3000);
   }
 });
 
