@@ -166,8 +166,45 @@ function setFilter(f) {
   const map = {all:'fAll',missing:'fMissing',have:'fHave',repeat:'fRepeat'};
   document.getElementById(map[f]).classList.add('active');
   document.querySelectorAll('.stk').forEach(el=>applyFilter(el));
-  // garante que cards sem resultado fiquem ocultos
   document.querySelectorAll('.group-card').forEach(card=>updateCardVisibility(card));
+  // esconde tabs de grupos sem resultado quando filtrado
+  updateTabsVisibility();
+}
+
+function updateTabsVisibility() {
+  if (currentFilter === 'all') {
+    document.querySelectorAll('.tab').forEach(t=>t.style.display='');
+    return;
+  }
+  GROUPS.forEach(g=>{
+    let hasResult = false;
+    g.teams.forEach(tm=>{
+      for(let i=1;i<=tm[2];i++){
+        const k=key(g.id,tm[1],i);
+        const have=!!owned[k], rep=(repeats[k]||0)>1;
+        if(currentFilter==='missing' && !have){ hasResult=true; break; }
+        if(currentFilter==='have'    &&  have){ hasResult=true; break; }
+        if(currentFilter==='repeat'  &&  rep) { hasResult=true; break; }
+      }
+      if(hasResult) return;
+    });
+    const tab=document.getElementById('tab_'+g.id);
+    if(tab) tab.style.display = hasResult ? '' : 'none';
+  });
+  // especiais
+  ['FWC','CC'].forEach(id=>{
+    const sp=SPECIALS.find(s=>s.id===id);
+    let hasResult=false;
+    sp.nums.forEach(n=>{
+      const k=spKey(id,n);
+      const have=!!owned[k], rep=(repeats[k]||0)>1;
+      if(currentFilter==='missing' && !have) hasResult=true;
+      if(currentFilter==='have'    &&  have) hasResult=true;
+      if(currentFilter==='repeat'  &&  rep)  hasResult=true;
+    });
+    const tab=document.getElementById('tab_'+id);
+    if(tab) tab.style.display = hasResult ? '' : 'none';
+  });
 }
 
 // ── TEAM COUNT & COMPLETE ──
