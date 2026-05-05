@@ -1,0 +1,66 @@
+{
+    "packageId":  "io.github.joneswtf2026.twa",
+    "host":  "joneswtf2026.github.io",
+    "name":  "Album Copa 2026",
+    "launcherName":  "Copa 2026",
+    "display":  "standalone",
+    "themeColor":  "#064E3B",
+    "themeColorDark":  "#000000",
+    "navigationColor":  "#000000",
+    "navigationColorDark":  "#000000",
+    "navigationDividerColor":  "#000000",
+    "navigationDividerColorDark":  "#000000",
+    "backgroundColor":  "#064E3B",
+    "enableNotifications":  true,
+    "startUrl":  "/copa2026/",
+    "iconUrl":  "https://joneswtf2026.github.io/copa2026/icon-512.png",
+    "maskableIconUrl":  "https://joneswtf2026.github.io/copa2026/icon-512.png",
+    "monochromeIconUrl":  "https://joneswtf2026.github.io/copa2026/icon-512.png",
+    "splashScreenFadeOutDuration":  300,
+    "signingKey":  {
+                       "path":  "C:\\Users\\jonesf\\Downloads\\copa_apk\\android.keystore",
+                       "alias":  "android",
+                       "storePassword":  "Copa2026!",
+                       "keyPassword":  "Copa2026!"
+                   },
+    "appVersionName":  "1",
+    "appVersionCode":  1,
+    "shortcuts":  [
+
+                  ],
+    "generatorApp":  "bubblewrap-cli",
+    "webManifestUrl":  "https://joneswtf2026.github.io/copa2026/manifest.json",
+    "fallbackType":  "customtabs",
+    "features":  {
+
+                 },
+    "alphaDependencies":  {
+                              "enabled":  false
+                          },
+    "enableSiteSettingsShortcut":  true,
+    "isChromeOSOnly":  false,
+    "isMetaQuest":  false,
+    "fullScopeUrl":  "https://joneswtf2026.github.io/",
+    "minSdkVersion":  21,
+    "orientation":  "portrait",
+    "fingerprints":  [
+
+                     ],
+    "additionalTrustedOrigins":  [
+
+                                 ],
+    "retainedBundles":  [
+
+                        ],
+    "protocolHandlers":  [
+
+                         ],
+    "fileHandlers":  [
+
+                     ],
+    "launchHandlerClientMode":  "",
+    "displayOverride":  [
+
+                        ],
+    "appVersion":  "1"
+}
