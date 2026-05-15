@@ -133,9 +133,39 @@ function updateRepeatBadge(el, k) {
   let badge = el.querySelector('.repeat-badge');
   const r = repeats[k] || 0;
   if (owned[k] && r > 1) {
-    if (!badge) { badge = document.createElement('span'); badge.className='repeat-badge'; el.appendChild(badge); }
-    badge.textContent = 'x'+r;
-  } else if (badge) badge.remove();
+    if (!badge) {
+      badge = document.createElement('span');
+      badge.className = 'repeat-badge';
+      badge.addEventListener('click',  e => { e.stopPropagation(); decrementSticker(k, el); });
+      badge.addEventListener('touchend', e => { e.stopPropagation(); e.preventDefault(); decrementSticker(k, el); });
+      el.appendChild(badge);
+    }
+    badge.innerHTML = 'x'+r+'<span class="minus-btn">−</span>';
+  } else if (badge) {
+    badge.remove();
+  }
+}
+
+// ── DECREMENT ──
+function decrementSticker(k, el) {
+  const isSp = k.startsWith('SP__');
+  repeats[k] = (repeats[k] || 1) - 1;
+  if (repeats[k] <= 0) {
+    // zera a figurinha
+    owned[k] = false;
+    repeats[k] = 0;
+    el.classList.remove('have');
+    updateRepeatBadge(el, k);
+    updateStats(); save(); vibrate();
+    if (!isSp) { const p=k.split('__'); updateTeamCount(p[0],p[1]); updateTabBadge(p[0]); }
+    setTimeout(()=>{ applyFilter(el); updateCardVisibility(el.closest('.group-card')); }, 300);
+    showToast('Figurinha removida');
+  } else {
+    updateRepeatBadge(el, k);
+    save(); vibrate();
+    if (repeats[k] === 1) showToast('Repetida removida');
+    else showToast('x'+repeats[k]+' repetidas');
+  }
 }
 
 // ── FILTER ──

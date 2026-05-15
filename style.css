@@ -87,7 +87,9 @@ body{font-family:'Figtree',system-ui,sans-serif;background:var(--bg);color:var(-
 .stk.hidden-filter{display:none;pointer-events:none;}
 .stk:active{transform:scale(.88);}
 .stk.have:active{transform:scale(.92);}
-.repeat-badge{position:absolute;top:-5px;right:-5px;background:var(--gold);color:#fff;font-size:8px;font-weight:700;border-radius:8px;padding:1px 4px;min-width:14px;text-align:center;border:1.5px solid var(--surface);line-height:1.4;pointer-events:none;}
+.repeat-badge{position:absolute;top:-7px;right:-7px;background:var(--gold);color:#fff;font-size:8px;font-weight:700;border-radius:10px;padding:2px 5px;min-width:18px;text-align:center;border:1.5px solid var(--surface);line-height:1.4;cursor:pointer;display:flex;align-items:center;gap:2px;white-space:nowrap;}
+.repeat-badge .minus-btn{font-size:11px;font-weight:900;line-height:1;opacity:.85;margin-left:1px;}
+.repeat-badge:active{transform:scale(.88);}
 .stk.special{width:38px;font-size:10px;flex-direction:column;gap:1px;}
 .stk.special.have{background:var(--gold);border-color:#d97706;color:var(--green-900);}
 /* FIGURINHA 1 - escudo (prata) */
