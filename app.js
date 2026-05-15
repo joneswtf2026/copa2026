@@ -317,6 +317,7 @@ function markAll(gid, code, btn) {
   for(let i=1;i<=tm[2];i++) if(!owned[key(gid,code,i)]){allHave=false;break;}
   for(let i=1;i<=tm[2];i++){
     const k=key(gid,code,i); owned[k]=!allHave;
+    if (!allHave && !repeats[k]) repeats[k] = 1;
     const el=document.querySelector('[data-k="'+k+'"]');
     if(el){el.classList.toggle('have',!allHave);applyFilter(el);}
   }
@@ -376,7 +377,7 @@ function renderTeam(g, tm) {
     let extraClass='', label=String(n);
     if(n===1) { extraClass=' stk-shield'; }
     else if(n===13) { extraClass=' stk-team'; }
-    return '<div class="stk'+extraClass+h+'" data-k="'+k+'" ontouchstart="event.preventDefault();handlePress(\''+k+'\',this,false,event)" ontouchend="event.preventDefault();handleRelease(\''+k+'\',this,false,event)" ontouchcancel="cancelPress()" title="'+code+' '+n+(n===1?' - Escudo':n===13?' - Foto seleção':'')+'">'+label+r+'</div>';
+    return '<div class="stk'+extraClass+h+'" data-k="'+k+'" ontouchstart="event.preventDefault();handlePress(\''+k+'\',this,false,event)" ontouchend="event.preventDefault();handleRelease(\''+k+'\',this,false,event)" ontouchcancel="cancelPress()" onclick="handleClick(\''+k+'\',this,false,event)" title="'+code+' '+n+(n===1?' - Escudo':n===13?' - Foto seleção':'')+'">'+label+r+'</div>';
   }).join('');
   return '<div class="group-card'+(allDone?' complete':'')+'" id="card_'+g.id+'_'+code+'">'+
     '<div class="group-hdr">'+
@@ -402,7 +403,7 @@ function renderSpecial(el, id) {
   const stickers=sp.nums.map(n=>{
     const k=spKey(id,n),h=owned[k]?' have':'',lbl=isCC?'CC'+n:'FWC'+n;
     const r=(repeats[k]||0)>1?'<span class="repeat-badge">x'+repeats[k]+'</span>':'';
-    return '<div class="stk special'+h+'" data-k="'+k+'" ontouchstart="event.preventDefault();handlePress(\''+k+'\',this,true,event)" ontouchend="event.preventDefault();handleRelease(\''+k+'\',this,true,event)" ontouchcancel="cancelPress()" title="'+lbl+'">'+lbl+r+'</div>';
+    return '<div class="stk special'+h+'" data-k="'+k+'" ontouchstart="event.preventDefault();handlePress(\''+k+'\',this,true,event)" ontouchend="event.preventDefault();handleRelease(\''+k+'\',this,true,event)" ontouchcancel="cancelPress()" onclick="handleClick(\''+k+'\',this,true,event)" title="'+lbl+'">'+lbl+r+'</div>';
   }).join('');
   const color=isCC?'#b91c1c':'#1e40af';
   const icon=sp.emoji||'🏆';
@@ -450,7 +451,7 @@ function onSearch(q) {
       const stickers=numsToShow.map(n=>{
         const k=key(g.id,code,n),h=owned[k]?' have':'';
         const r=(repeats[k]||0)>1?'<span class="repeat-badge">x'+repeats[k]+'</span>':'';
-        return '<div class="stk'+h+'" data-k="'+k+'" ontouchstart="event.preventDefault();handlePress(\''+k+'\',this,false,event)" ontouchend="event.preventDefault();handleRelease(\''+k+'\',this,false,event)" ontouchcancel="cancelPress()">'+n+r+'</div>';
+        return '<div class="stk'+h+'" data-k="'+k+'" ontouchstart="event.preventDefault();handlePress(\''+k+'\',this,false,event)" ontouchend="event.preventDefault();handleRelease(\''+k+'\',this,false,event)" ontouchcancel="cancelPress()" onclick="handleClick(\''+k+'\',this,false,event)">'+n+r+'</div>';
       }).join('');
       html+='<div class="group-card"><div class="group-hdr"><div class="group-hdr-left"><div class="group-badge">'+g.id+'</div><div><div class="group-name">'+name+'</div><div class="group-prog" id="tc_'+g.id+'_'+code+'">'+have+'/'+count+'</div></div></div><div style="background:rgba(255,255,255,.15);padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700;color:#fff">'+code+'</div></div><div class="team-row"><div class="stickers">'+stickers+'</div></div></div>';
     });
@@ -468,7 +469,7 @@ function onSearch(q) {
     const stickers=numsToShow.map(n=>{
       const k=spKey(sp.id,n),h=owned[k]?' have':'',lbl=isCC?'CC'+n:'FWC'+n;
       const r=(repeats[k]||0)>1?'<span class="repeat-badge">x'+repeats[k]+'</span>':'';
-      return '<div class="stk special'+h+'" data-k="'+k+'" ontouchstart="event.preventDefault();handlePress(\''+k+'\',this,true,event)" ontouchend="event.preventDefault();handleRelease(\''+k+'\',this,true,event)" ontouchcancel="cancelPress()">'+lbl+r+'</div>';
+      return '<div class="stk special'+h+'" data-k="'+k+'" ontouchstart="event.preventDefault();handlePress(\''+k+'\',this,true,event)" ontouchend="event.preventDefault();handleRelease(\''+k+'\',this,true,event)" ontouchcancel="cancelPress()" onclick="handleClick(\''+k+'\',this,true,event)">'+lbl+r+'</div>';
     }).join('');
     html+='<div class="group-card"><div class="group-hdr" style="background:'+color+'"><div class="group-hdr-left"><div class="group-badge">'+(isCC?'🥤':'🏆')+'</div><div><div class="group-name">'+sp.label+'</div><div class="group-prog">'+have+'/'+sp.nums.length+'</div></div></div></div><div class="team-row"><div class="stickers">'+stickers+'</div></div></div>';
   });
@@ -613,6 +614,11 @@ function adjustBodyPadding() {
   },50);
 }
 
+// ── KEYBOARD RESIZE (Android virtual keyboard) ──
+if (window.visualViewport) {
+  window.visualViewport.addEventListener('resize', adjustBodyPadding);
+}
+
 // ── INIT ──
 load();
 renderTabs();
@@ -639,4 +645,29 @@ if('serviceWorker' in navigator){
 function cancelPress() {
   if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
   didLongPress = false;
+}
+
+// ── CLICK (desktop/mouse fallback) ──
+// ontouchend já chama handleRelease; onclick só deve agir quando for mouse
+function handleClick(k, el, isSp, evt) {
+  if (evt && evt.sourceCapabilities && evt.sourceCapabilities.firesTouchEvents) return;
+  // em browsers sem sourceCapabilities, checa se houve toque recente
+  if (didLongPress) return;
+  // toque simples: incrementa
+  if (!owned[k]) {
+    owned[k] = true;
+    repeats[k] = 1;
+  } else {
+    repeats[k] = (repeats[k] || 1) + 1;
+  }
+  el.classList.add('have');
+  updateRepeatBadge(el, k);
+  updateStats(); save(); vibrate();
+  if (!isSp) {
+    const p=k.split('__');
+    updateTeamCount(p[0],p[1]);
+    checkTeamComplete(p[0],p[1]);
+  }
+  setTimeout(()=>{ applyFilter(el); updateCardVisibility(el.closest('.group-card')); }, 300);
+  if (repeats[k] > 1) showToast('x'+repeats[k]+' repetidas');
 }
