@@ -107,6 +107,10 @@ function handleRelease(k, el, isSp, evt) {
     if (dx > 10 || dy > 10) return; // foi scroll, ignora
   }
 
+  // fecha teclado se o input de busca estiver focado
+  const searchInput = document.getElementById('searchInput');
+  if (searchInput && document.activeElement === searchInput) searchInput.blur();
+
   // toque intencional: incrementa
   if (!owned[k]) {
     owned[k] = true;
@@ -669,9 +673,32 @@ function adjustBodyPadding() {
   },50);
 }
 
-// ── KEYBOARD RESIZE (Android virtual keyboard) ──
+// ── KEYBOARD / VIEWPORT ──
+// Quando o teclado virtual abre no Android, o visualViewport encolhe.
+// Limitamos a altura do pageBody ao espaço visível para o conteúdo
+// não ficar escondido atrás do teclado.
+function onViewportResize() {
+  const vv = window.visualViewport;
+  if (!vv) return;
+  const pageBody = document.getElementById('pageBody');
+  const header   = document.getElementById('fixedHeader');
+  const headerH  = header ? header.offsetHeight : 0;
+  // altura visível = altura do visualViewport menos o offset do topo (quando teclado empurra)
+  const visibleH = vv.height;
+  pageBody.style.paddingTop = headerH + 'px';
+  // se o teclado está aberto (viewport menor que janela), define altura máxima
+  if (vv.height < window.innerHeight * 0.75) {
+    pageBody.style.height = (visibleH - headerH) + 'px';
+    pageBody.style.overflowY = 'auto';
+  } else {
+    pageBody.style.height = '';
+    pageBody.style.overflowY = '';
+  }
+}
+
 if (window.visualViewport) {
-  window.visualViewport.addEventListener('resize', adjustBodyPadding);
+  window.visualViewport.addEventListener('resize', onViewportResize);
+  window.visualViewport.addEventListener('scroll', onViewportResize);
 }
 
 // ── INIT ──
