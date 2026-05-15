@@ -407,7 +407,7 @@ function getSortedTeams() {
   const all = [];
   GROUPS.forEach(g => g.teams.forEach(tm => all.push({g, tm})));
   if (currentSort === 'alpha') {
-    return all.slice().sort((a, b) => a.tm[0].localeCompare(b.tm[0], 'pt'));
+    return all.slice().sort((a, b) => a.tm[1].localeCompare(b.tm[1]));
   }
   return all;
 }
