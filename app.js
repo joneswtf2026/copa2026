@@ -584,15 +584,20 @@ function shareStats() {
   text+='✅ Tenho: '+have+'/'+TOTAL_STICKERS+' ('+pct+'%)\n';
   text+='❌ Faltam: '+(TOTAL_STICKERS-have)+'\n';
 
-  // Faltantes — inclui times com NENHUMA figurinha
+  // Faltantes — só mostra grupos que já foram iniciados (tem pelo menos 1 figurinha)
   let missingText='';
+  let notStarted=[];
   GROUPS.forEach(g=>{
     g.teams.forEach(tm=>{
       const [name,code,count,flag]=tm;
       const missing=[];
-      for(let i=1;i<=count;i++) if(!owned[key(g.id,code,i)]) missing.push(i);
-      if(missing.length===count){
-        missingText+=(flag?flag+' ':'')+name+': todas faltam ❌\n';
+      let hasAny=false;
+      for(let i=1;i<=count;i++){
+        if(owned[key(g.id,code,i)]) hasAny=true;
+        else missing.push(i);
+      }
+      if(!hasAny){
+        notStarted.push((flag?flag+' ':'')+name);
       } else if(missing.length>0){
         missingText+=(flag?flag+' ':'')+name+': faltam '+missing.join(', ')+'\n';
       }
@@ -602,13 +607,15 @@ function shareStats() {
     const isCC=sp.id==='CC';
     const emoji=isCC?'🥤':'⚽';
     const missing=sp.nums.filter(n=>!owned[spKey(sp.id,n)]);
-    if(missing.length===sp.nums.length){
-      missingText+=emoji+' '+sp.label+': todas faltam ❌\n';
+    const hasAny=sp.nums.some(n=>owned[spKey(sp.id,n)]);
+    if(!hasAny){
+      notStarted.push(emoji+' '+sp.label);
     } else if(missing.length>0){
       missingText+=emoji+' '+sp.label+': faltam '+(isCC?missing.map(n=>'CC'+n):missing.map(n=>'FWC'+n)).join(', ')+'\n';
     }
   });
-  if(missingText) text+='\n📋 Faltantes para troca:\n'+missingText;
+  if(missingText) text+='\n📋 Faltantes:\n'+missingText;
+  if(notStarted.length) text+='\n⏳ Ainda não iniciados ('+notStarted.length+'):\n'+notStarted.join(', ')+'\n';
 
   // Repetidas
   let repeatText='';
@@ -635,15 +642,11 @@ function shareStats() {
   });
   if(repeatText) text+='\n🔄 Tenho para trocar:\n'+repeatText;
 
-  if(navigator.share) {
-    navigator.share({title:'Meu álbum Copa 2026',text})
-      .catch(err=>{
-        if(err.name !== 'AbortError'){
-          navigator.clipboard && navigator.clipboard.writeText(text).then(()=>showToast('Resumo copiado!'));
-        }
-      });
-  } else if(navigator.clipboard) {
-    navigator.clipboard.writeText(text).then(()=>showToast('Resumo copiado!'));
+  // Copia para clipboard — mais confiável que navigator.share para textos longos
+  if(navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(()=>showToast('📋 Copiado para área de transferência!'));
+  } else if(navigator.share) {
+    navigator.share({title:'Meu álbum Copa 2026',text}).catch(()=>{});
   } else {
     showToast('Copie o texto'); alert(text);
   }
