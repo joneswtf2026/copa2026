@@ -185,17 +185,20 @@ function decrementSticker(k, el) {
 
 // ── FILTER ──
 function applyFilter(el) {
-  if (currentFilter === 'all') { el.classList.remove('hidden-filter'); return; }
+  // el é a .stk — aplica hidden-filter no .stk-wrap pai para esconder o par (figurinha + botão −)
+  const wrap = el.parentElement && el.parentElement.classList.contains('stk-wrap') ? el.parentElement : el;
+  if (currentFilter === 'all') { wrap.classList.remove('hidden-filter'); return; }
   const k = el.dataset.k;
   const have = !!owned[k], rep = (repeats[k]||0) > 1;
-  if      (currentFilter==='missing') el.classList.toggle('hidden-filter',  have);
-  else if (currentFilter==='have')    el.classList.toggle('hidden-filter', !have);
-  else if (currentFilter==='repeat')  el.classList.toggle('hidden-filter', !rep);
+  if      (currentFilter==='missing') wrap.classList.toggle('hidden-filter',  have);
+  else if (currentFilter==='have')    wrap.classList.toggle('hidden-filter', !have);
+  else if (currentFilter==='repeat')  wrap.classList.toggle('hidden-filter', !rep);
 }
 
 function updateCardVisibility(card) {
   if (!card) return;
-  const all = card.querySelectorAll('.stk');
+  // conta .stk-wrap visíveis (ou .stk diretos para compatibilidade)
+  const all = card.querySelectorAll('.stk-wrap, .stk:not(.stk-wrap .stk)');
   const visible = Array.from(all).filter(s=>!s.classList.contains('hidden-filter'));
   card.style.display = visible.length === 0 ? 'none' : '';
 }
