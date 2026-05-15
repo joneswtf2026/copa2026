@@ -214,39 +214,48 @@ function setFilter(f) {
 }
 
 function updateTabsVisibility() {
-  if (currentFilter === 'all') {
+  if (currentFilter === 'all' || currentSort === 'alpha') {
     document.querySelectorAll('.tab').forEach(t=>t.style.display='');
     return;
   }
+  let firstVisibleTab = null;
   GROUPS.forEach(g=>{
     let hasResult = false;
-    g.teams.forEach(tm=>{
+    outer: for(const tm of g.teams){
       for(let i=1;i<=tm[2];i++){
         const k=key(g.id,tm[1],i);
         const have=!!owned[k], rep=(repeats[k]||0)>1;
-        if(currentFilter==='missing' && !have){ hasResult=true; break; }
-        if(currentFilter==='have'    &&  have){ hasResult=true; break; }
-        if(currentFilter==='repeat'  &&  rep) { hasResult=true; break; }
+        if(currentFilter==='missing' && !have){ hasResult=true; break outer; }
+        if(currentFilter==='have'    &&  have){ hasResult=true; break outer; }
+        if(currentFilter==='repeat'  &&  rep) { hasResult=true; break outer; }
       }
-      if(hasResult) return;
-    });
+    }
     const tab=document.getElementById('tab_'+g.id);
     if(tab) tab.style.display = hasResult ? '' : 'none';
+    if(hasResult && !firstVisibleTab) firstVisibleTab = g.id;
   });
   // especiais
   ['FWC','CC'].forEach(id=>{
     const sp=SPECIALS.find(s=>s.id===id);
     let hasResult=false;
-    sp.nums.forEach(n=>{
+    for(const n of sp.nums){
       const k=spKey(id,n);
       const have=!!owned[k], rep=(repeats[k]||0)>1;
-      if(currentFilter==='missing' && !have) hasResult=true;
-      if(currentFilter==='have'    &&  have) hasResult=true;
-      if(currentFilter==='repeat'  &&  rep)  hasResult=true;
-    });
+      if(currentFilter==='missing' && !have){ hasResult=true; break; }
+      if(currentFilter==='have'    &&  have){ hasResult=true; break; }
+      if(currentFilter==='repeat'  &&  rep) { hasResult=true; break; }
+    }
     const tab=document.getElementById('tab_'+id);
     if(tab) tab.style.display = hasResult ? '' : 'none';
+    if(hasResult && !firstVisibleTab) firstVisibleTab = id;
   });
+  // se o tab atual ficou escondido, muda para o primeiro visível
+  const activeTab = document.getElementById('tab_'+currentTab);
+  if(activeTab && activeTab.style.display === 'none' && firstVisibleTab) {
+    currentTab = firstVisibleTab;
+    renderTabs();
+    renderContent();
+  }
 }
 
 // ── TEAM COUNT & COMPLETE ──
