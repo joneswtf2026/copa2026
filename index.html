@@ -13,7 +13,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
-<link rel="stylesheet" href="style.css?v=25">
+<link rel="stylesheet" href="style.css?v=26">
 </head>
 <body>
 
@@ -53,6 +53,7 @@
       <button class="filter-btn"        id="fMissing" onclick="setFilter('missing')">Faltantes</button>
       <button class="filter-btn"        id="fHave"    onclick="setFilter('have')">Tenho</button>
       <button class="filter-btn"        id="fRepeat"  onclick="setFilter('repeat')">Repetidas</button>
+      <button class="filter-btn sort-btn" id="sortBtn" onclick="toggleSort()" title="Ordenar A-Z">🔤</button>
     </div>
   </div>
   <div class="tabs-wrap"><div class="tabs" id="tabs"></div></div>
@@ -84,7 +85,7 @@
   </div>
 </div>
 
-<script src="app.js?v=33"></script>
+<script src="app.js?v=34"></script>
 <script type="module" src="firebase.js?v=3"></script>
 </body>
 </html>

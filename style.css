@@ -32,6 +32,8 @@ body{font-family:'Figtree',system-ui,sans-serif;background:var(--bg);color:var(-
 .filter-wrap::-webkit-scrollbar{display:none;}
 .filter-btn{flex-shrink:0;padding:4px 12px;border-radius:20px;border:1.5px solid rgba(255,255,255,.25);background:transparent;font-size:11px;font-weight:600;color:rgba(255,255,255,.7);cursor:pointer;font-family:inherit;}
 .filter-btn.active{background:rgba(255,255,255,.2);color:#fff;border-color:rgba(255,255,255,.5);}
+.filter-btn.sort-btn{margin-left:auto;border-color:rgba(255,255,255,.4);font-size:13px;padding:4px 10px;}
+.filter-btn.sort-btn.sort-active{background:rgba(255,255,255,.2);border-color:rgba(255,255,255,.6);}
 .tabs-wrap{overflow-x:auto;scrollbar-width:none;border-top:1px solid rgba(255,255,255,.1);padding:6px 16px;}
 .tabs-wrap::-webkit-scrollbar{display:none;}
 .tabs{display:flex;gap:5px;}

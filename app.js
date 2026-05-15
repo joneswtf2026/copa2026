@@ -27,7 +27,7 @@ const SPECIALS = [
 const TOTAL_STICKERS = GROUPS.reduce((a,g)=>a+g.teams.reduce((b,t)=>b+t[2],0),0)
   + SPECIALS.reduce((a,s)=>a+s.nums.length,0);
 
-let owned = {}, repeats = {}, currentTab = 'A', currentFilter = 'all', saveTimer = null;
+let owned = {}, repeats = {}, currentTab = 'A', currentFilter = 'all', currentSort = 'group', saveTimer = null;
 
 // ── STORAGE ──
 function load() {
@@ -372,6 +372,34 @@ function markAll(gid, code, btn) {
   if(!allHave){launchConfetti();showToast('🎉 '+tm[0]+' completa!');updateTabBadge(gid);}
 }
 
+// ── SORT ──
+function toggleSort() {
+  currentSort = currentSort === 'group' ? 'alpha' : 'group';
+  const btn = document.getElementById('sortBtn');
+  if (currentSort === 'alpha') {
+    if (btn) { btn.textContent = '🏆'; btn.title = 'Ordenar por grupo'; btn.classList.add('sort-active'); }
+    // muda para aba A-Z
+    currentTab = 'A-Z';
+  } else {
+    if (btn) { btn.textContent = '🔤'; btn.title = 'Ordenar A-Z'; btn.classList.remove('sort-active'); }
+    // volta para aba A (primeiro grupo)
+    currentTab = 'A';
+  }
+  renderTabs();
+  renderContent();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// retorna lista de times ordenada conforme currentSort
+function getSortedTeams() {
+  const all = [];
+  GROUPS.forEach(g => g.teams.forEach(tm => all.push({g, tm})));
+  if (currentSort === 'alpha') {
+    return all.slice().sort((a, b) => a.tm[0].localeCompare(b.tm[0], 'pt'));
+  }
+  return all;
+}
+
 // ── TABS ──
 function isDoneTab(t) {
   if(t==='FWC'||t==='CC'){const sp=SPECIALS.find(s=>s.id===t);return sp.nums.every(n=>owned[spKey(t,n)]);}
@@ -380,6 +408,20 @@ function isDoneTab(t) {
 }
 
 function renderTabs() {
+  if (currentSort === 'alpha') {
+    // no modo alfa, mostra uma única aba "A-Z" ativa + especiais
+    const specials = ['FWC','CC'];
+    const allTabs = ['A-Z', ...specials];
+    document.getElementById('tabs').innerHTML = allTabs.map(t => {
+      if (t === 'A-Z') {
+        return '<div class="tab'+(currentTab==='A-Z'?' active':'')+'" id="tab_A-Z" onclick="switchTab(\'A-Z\')">A-Z</div>';
+      }
+      const label = t==='FWC'?'História':'Coca-Cola';
+      const done = isDoneTab(t);
+      return '<div class="tab'+(t===currentTab?' active':'')+(done?' done':'')+'" id="tab_'+t+'" onclick="switchTab(\''+t+'\')">'+label+'</div>';
+    }).join('');
+    return;
+  }
   const list = GROUPS.map(g=>g.id).concat(['FWC','CC']);
   document.getElementById('tabs').innerHTML = list.map(t=>{
     const label = t==='FWC'?'História':t==='CC'?'Coca-Cola':'Grupo '+t;
@@ -404,8 +446,13 @@ function renderContent() {
   document.getElementById('searchResults').style.display='none';
   el.style.display='block';
   if(currentTab==='FWC'||currentTab==='CC'){renderSpecial(el,currentTab);return;}
-  const g=GROUPS.find(x=>x.id===currentTab); if(!g) return;
-  el.innerHTML=g.teams.map(tm=>renderTeam(g,tm)).join('');
+  if(currentSort==='alpha' && currentTab==='A-Z'){
+    const sorted = getSortedTeams();
+    el.innerHTML = sorted.map(({g,tm})=>renderTeam(g,tm)).join('');
+  } else {
+    const g=GROUPS.find(x=>x.id===currentTab); if(!g) return;
+    el.innerHTML=g.teams.map(tm=>renderTeam(g,tm)).join('');
+  }
   // aplica filtro após renderizar
   document.querySelectorAll('.stk').forEach(el=>applyFilter(el));
   document.querySelectorAll('.group-card').forEach(card=>updateCardVisibility(card));
@@ -594,12 +641,12 @@ function shareStats() {
       let hasAny=false;
       for(let i=1;i<=count;i++){
         if(owned[key(g.id,code,i)]) hasAny=true;
-        else missing.push(i);
+        else missing.push(code+i);
       }
       if(!hasAny){
         notStarted.push((flag?flag+' ':'')+name);
       } else if(missing.length>0){
-        missingText+=(flag?flag+' ':'')+name+': faltam '+missing.join(', ')+'\n';
+        missingText+=(flag?flag+' ':'')+name+' ('+code+'): '+missing.join(', ')+'\n';
       }
     });
   });
