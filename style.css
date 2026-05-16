@@ -66,6 +66,12 @@ body{font-family:'Figtree',system-ui,sans-serif;background:var(--bg);color:var(-
 .modal-mini-bar{width:80px;height:5px;background:var(--border);border-radius:3px;overflow:hidden;margin-left:8px;}
 .modal-mini-fill{height:100%;background:linear-gradient(90deg,var(--green-700),var(--green-400));border-radius:3px;}
 .modal-complete .modal-pct{color:var(--gold);}
+/* LOG */
+.log-row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px;}
+.log-row:last-child{border-bottom:none;}
+.log-icon{font-size:14px;flex-shrink:0;}
+.log-msg{flex:1;font-weight:600;color:var(--text);}
+.log-time{font-size:10px;color:var(--text-3);white-space:nowrap;flex-shrink:0;}
 /* MILESTONE TOAST */
 .milestone-toast{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:9998;pointer-events:none;}
 .milestone-inner{background:var(--green-900);color:#fff;padding:20px 32px;border-radius:20px;text-align:center;animation:milestoneAnim .6s ease;font-size:28px;font-weight:700;box-shadow:0 8px 32px rgba(0,0,0,.3);}

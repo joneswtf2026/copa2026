@@ -33,6 +33,7 @@ let owned = {}, repeats = {}, currentTab = 'A', currentFilter = 'all', currentSo
 function load() {
   try { owned   = JSON.parse(localStorage.getItem('copa2026')     || '{}'); } catch(e){owned={};}
   try { repeats = JSON.parse(localStorage.getItem('copa2026_rep') || '{}'); } catch(e){repeats={};}
+  loadLog();
 }
 
 function save() {
@@ -65,6 +66,81 @@ function updateStats() {
 function key(g,code,n)  { return g+'__'+code+'__'+n; }
 function spKey(id,n)    { return 'SP__'+id+'__'+n; }
 
+// ── KEY → LABEL legível ──
+function keyLabel(k) {
+  if (k.startsWith('SP__')) {
+    const parts = k.split('__'); // SP, id, n
+    return parts[1]+parts[2]; // ex: FWC3, CC7
+  }
+  const parts = k.split('__'); // gid, code, n
+  return parts[1]+parts[2]; // ex: BRA5, MEX12
+}
+
+// ── ACTIVITY LOG ──
+const LOG_KEY = 'copa2026_log';
+const LOG_MAX = 200;
+let activityLog = [];
+
+function loadLog() {
+  try { activityLog = JSON.parse(localStorage.getItem(LOG_KEY) || '[]'); } catch(e){ activityLog=[]; }
+}
+
+function saveLog() {
+  if (activityLog.length > LOG_MAX) activityLog = activityLog.slice(-LOG_MAX);
+  localStorage.setItem(LOG_KEY, JSON.stringify(activityLog));
+}
+
+function logAction(type, k) {
+  // type: 'add' | 'repeat' | 'remove' | 'decrement'
+  const label = keyLabel(k);
+  const now = new Date();
+  const time = now.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  const date = now.toLocaleDateString('pt-BR', {day:'2-digit',month:'2-digit'});
+  let icon, msg;
+  if      (type==='add')       { icon='✅'; msg=label+' marcada'; }
+  else if (type==='repeat')    { icon='🔄'; msg=label+' x'+repeats[k]+' (repetida)'; }
+  else if (type==='remove')    { icon='❌'; msg=label+' removida (segurar)'; }
+  else if (type==='decrement') { icon='➖'; msg=label+' −1 '+(repeats[k]>0?'(x'+repeats[k]+' restam)':'(desmarcada)'); }
+  activityLog.push({date, time, icon, msg});
+  saveLog();
+}
+
+function showLog() {
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  const rows = activityLog.length === 0
+    ? '<div style="text-align:center;padding:24px;color:var(--text-3);font-size:13px;">Nenhuma atividade registrada ainda.</div>'
+    : [...activityLog].reverse().map(e=>
+        '<div class="log-row">'+
+          '<span class="log-icon">'+e.icon+'</span>'+
+          '<span class="log-msg">'+e.msg+'</span>'+
+          '<span class="log-time">'+e.date+' '+e.time+'</span>'+
+        '</div>'
+      ).join('');
+  overlay.innerHTML =
+    '<div class="modal">'+
+      '<div class="modal-title">📋 Log de atividade'+
+        '<button class="modal-close" onclick="closeModal(this)">✕</button>'+
+      '</div>'+
+      '<div style="display:flex;justify-content:flex-end;margin-bottom:10px;">'+
+        '<button onclick="clearLog(this)" style="background:none;border:1.5px solid var(--border);border-radius:8px;padding:4px 12px;font-size:11px;color:var(--text-3);cursor:pointer;font-family:inherit;">Limpar log</button>'+
+      '</div>'+
+      rows+
+    '</div>';
+  overlay.addEventListener('click', e=>{ if(e.target===overlay) closeModal(overlay); });
+  document.body.appendChild(overlay);
+}
+
+function clearLog(btn) {
+  if (!confirm('Limpar todo o histórico de atividade?')) return;
+  activityLog = [];
+  saveLog();
+  // fecha e reabre para atualizar
+  const overlay = btn.closest('.modal-overlay');
+  closeModal(overlay);
+  setTimeout(showLog, 220);
+}
+
 // ── HAPTIC ──
 function vibrate() { if (navigator.vibrate) navigator.vibrate(30); }
 
@@ -89,6 +165,7 @@ function handlePress(k, el, isSp, evt) {
     el.classList.remove('have');
     updateRepeatBadge(el, k);
     updateStats(); save(); vibrate();
+    logAction('remove', k);
     if (!isSp) { const p=k.split('__'); updateTeamCount(p[0],p[1]); updateTabBadge(p[0]); }
     setTimeout(()=>{ applyFilter(el); updateCardVisibility(el.closest('.group-card')); }, 300);
     showToast('Figurinha removida');
@@ -115,8 +192,10 @@ function handleRelease(k, el, isSp, evt) {
   if (!owned[k]) {
     owned[k] = true;
     repeats[k] = 1;
+    logAction('add', k);
   } else {
     repeats[k] = (repeats[k] || 1) + 1;
+    logAction('repeat', k);
   }
   el.classList.add('have');
   updateRepeatBadge(el, k);
@@ -165,6 +244,7 @@ function updateRepeatBadge(el, k) {
 function decrementSticker(k, el) {
   const isSp = k.startsWith('SP__');
   repeats[k] = (repeats[k] || 1) - 1;
+  logAction('decrement', k);
   if (repeats[k] <= 0) {
     // zera a figurinha
     owned[k] = false;
@@ -801,8 +881,10 @@ function handleClick(k, el, isSp, evt) {
   if (!owned[k]) {
     owned[k] = true;
     repeats[k] = 1;
+    logAction('add', k);
   } else {
     repeats[k] = (repeats[k] || 1) + 1;
+    logAction('repeat', k);
   }
   el.classList.add('have');
   updateRepeatBadge(el, k);
