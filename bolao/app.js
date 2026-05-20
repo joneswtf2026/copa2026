@@ -256,7 +256,7 @@ window.setFase = setFase;
 
 function setRankFase(fase) {
   currentRankFase = fase;
-  document.querySelectorAll('.fase-tab[data-rank]').forEach(el => {
+  document.querySelectorAll('.rank-filter-btn[data-rank]').forEach(el => {
     el.classList.toggle('active', el.dataset.rank === fase);
   });
   renderRanking();

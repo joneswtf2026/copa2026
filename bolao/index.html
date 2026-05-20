@@ -124,17 +124,24 @@
     <div id="page-ranking" class="page hidden">
       <div class="page-header">
         <h2>🏆 Ranking</h2>
-        <div class="fase-tabs">
-          <button class="fase-tab active" data-rank="geral" onclick="setRankFase('geral')">Geral</button>
-          <button class="fase-tab" data-rank="grupos" onclick="setRankFase('grupos')">Grupos</button>
-          <button class="fase-tab" data-rank="oitavas" onclick="setRankFase('oitavas')">Oitavas</button>
-          <button class="fase-tab" data-rank="quartas" onclick="setRankFase('quartas')">Quartas</button>
-          <button class="fase-tab" data-rank="semi" onclick="setRankFase('semi')">Semi</button>
-          <button class="fase-tab" data-rank="final" onclick="setRankFase('final')">Final</button>
+      </div>
+      <div class="ranking-layout">
+        <!-- Filtro lateral -->
+        <div class="ranking-sidebar">
+          <div class="ranking-sidebar-titulo">Filtrar por fase</div>
+          <button class="rank-filter-btn active" data-rank="geral"   onclick="setRankFase('geral')">🌍 Geral</button>
+          <button class="rank-filter-btn"         data-rank="grupos"  onclick="setRankFase('grupos')">⚽ Grupos</button>
+          <button class="rank-filter-btn"         data-rank="oitavas" onclick="setRankFase('oitavas')">⚔️ Oitavas</button>
+          <button class="rank-filter-btn"         data-rank="quartas" onclick="setRankFase('quartas')">🏅 Quartas</button>
+          <button class="rank-filter-btn"         data-rank="semi"    onclick="setRankFase('semi')">🌟 Semi</button>
+          <button class="rank-filter-btn"         data-rank="final"   onclick="setRankFase('final')">🏆 Final</button>
+        </div>
+        <!-- Conteúdo -->
+        <div class="ranking-content">
+          <div class="ranking-stats" id="rankingStats"></div>
+          <div id="rankingContainer"></div>
         </div>
       </div>
-      <div class="ranking-stats" id="rankingStats"></div>
-      <div id="rankingContainer"></div>
     </div>
 
     <!-- PÁGINA: CHAVEAMENTO -->
