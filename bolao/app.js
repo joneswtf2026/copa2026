@@ -247,6 +247,9 @@ function setFase(fase) {
   document.querySelectorAll('.fase-tab[data-fase]').forEach(el => {
     el.classList.toggle('active', el.dataset.fase === fase);
   });
+  // Mostra/esconde abas de grupo
+  const grupoWrap = document.getElementById('grupoTabsWrap');
+  if (grupoWrap) grupoWrap.style.display = fase === 'grupos' ? '' : 'none';
   renderPalpites();
 }
 window.setFase = setFase;
@@ -261,49 +264,70 @@ function setRankFase(fase) {
 window.setRankFase = setRankFase;
 
 // ── RENDER PALPITES ──
+let currentGrupoTab = 'A';
+
+function renderGrupoTabs() {
+  const el = document.getElementById('grupoTabs');
+  if (!el) return;
+  const grupos = Object.keys(GRUPOS);
+  el.innerHTML = grupos.map(g => {
+    const times = GRUPOS[g].times;
+    const flags = times.slice(0, 4).map(t => flag(t)).join('');
+    // Conta palpites pagos neste grupo
+    const temPal = JOGOS_GRUPOS.filter(j => j.grupo === g)
+      .some(j => palpitesUsuario[j.id]?.pago);
+    return `
+      <button class="grupo-tab ${g === currentGrupoTab ? 'active' : ''} ${temPal ? 'tem-palpite' : ''}"
+        onclick="setGrupoTab('${g}')">
+        <span class="gt-letra">Grupo ${g}</span>
+        <span class="gt-flags">${flags}</span>
+      </button>`;
+  }).join('');
+}
+
+function setGrupoTab(g) {
+  currentGrupoTab = g;
+  renderGrupoTabs();
+  renderPalpites();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+window.setGrupoTab = setGrupoTab;
+
 function renderPalpites() {
   const container = document.getElementById('jogosContainer');
   if (!container) return;
 
-  let jogos = [];
-  if (currentFase === 'grupos') {
-    jogos = JOGOS_GRUPOS;
-  } else {
-    // Mata-mata: busca jogos criados pelo admin
-    jogos = Object.values(jogosKnockout).filter(j => j.fase === currentFase);
-  }
+  const grupoWrap = document.getElementById('grupoTabsWrap');
 
-  if (jogos.length === 0) {
+  if (currentFase === 'grupos') {
+    if (grupoWrap) grupoWrap.style.display = '';
+    renderGrupoTabs();
+    // Mostra só os jogos do grupo selecionado
+    const jogos = JOGOS_GRUPOS.filter(j => j.grupo === currentGrupoTab);
+    const times = GRUPOS[currentGrupoTab].times;
     container.innerHTML = `
-      <div class="empty-state">
-        <div class="empty-state-icon">⏳</div>
-        <div class="empty-state-titulo">Jogos ainda não disponíveis</div>
-        <div class="empty-state-desc">Os jogos desta fase serão liberados após o encerramento da fase anterior.</div>
-      </div>`;
-    return;
-  }
-
-  if (currentFase === 'grupos') {
-    // Agrupa por grupo
-    const porGrupo = {};
-    jogos.forEach(j => {
-      if (!porGrupo[j.grupo]) porGrupo[j.grupo] = [];
-      porGrupo[j.grupo].push(j);
-    });
-    container.innerHTML = Object.entries(porGrupo).map(([grupo, gs]) => `
-      <div class="grupo-section">
-        <div class="grupo-titulo">
-          <div class="grupo-badge">${grupo}</div>
-          Grupo ${grupo} — ${GRUPOS[grupo].times.map(t => flag(t) + ' ' + t).join(', ')}
+      <div class="grupo-times-header">
+        <div class="grupo-times-lista">
+          ${times.map(t => `<span class="grupo-time-chip">${flag(t)} ${t}</span>`).join('')}
         </div>
-        ${gs.map(j => renderJogoCard(j)).join('')}
       </div>
-    `).join('');
+      ${jogos.map(j => renderJogoCard(j)).join('')}`;
   } else {
+    if (grupoWrap) grupoWrap.style.display = 'none';
+    const jogos = Object.values(jogosKnockout).filter(j => j.fase === currentFase);
+    if (jogos.length === 0) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state-icon">⏳</div>
+          <div class="empty-state-titulo">Jogos ainda não disponíveis</div>
+          <div class="empty-state-desc">Os jogos desta fase serão liberados após o encerramento da fase anterior.</div>
+        </div>`;
+      return;
+    }
     container.innerHTML = jogos.map(j => renderJogoCard(j)).join('');
   }
 
-  // Adiciona listeners nos inputs
+  // Listeners nos inputs
   container.querySelectorAll('.palpite-input').forEach(input => {
     input.addEventListener('change', onPalpiteChange);
     input.addEventListener('input', onPalpiteInput);
@@ -350,22 +374,24 @@ function renderJogoCard(jogo) {
     // Aberto para palpite
     const v1 = pal?.gols1 ?? '';
     const v2 = pal?.gols2 ?? '';
-    const inputDisabled = pago ? 'disabled' : '';
+    // Pago = input liberado para edição (só muda o placar, não cobra de novo)
+    // Não pago = input liberado normalmente
     palpiteArea = `
       <div class="palpite-area">
-        <div class="palpite-label">Seu palpite (${fmtBRL(custo)} por jogo)</div>
-        <div class="palpite-grid">
-          <input class="palpite-input" type="number" min="0" max="20" placeholder="0"
-            value="${v1}" data-jogo="${jogo.id}" data-campo="gols1" ${inputDisabled}>
-          <div class="palpite-x">×</div>
-          <input class="palpite-input" type="number" min="0" max="20" placeholder="0"
-            value="${v2}" data-jogo="${jogo.id}" data-campo="gols2" ${inputDisabled}>
-        </div>
         ${pago
-          ? `<div class="palpite-salvo">✅ Palpite confirmado e pago</div>`
-          : pal
-            ? `<div class="palpite-salvo">💾 Salvo — confirme o pagamento</div>`
-            : `<div class="palpite-custo">Custo: <strong>${fmtBRL(custo)}</strong></div>`
+          ? `<div class="palpite-label pago-label">✅ Jogo pago — edite o placar à vontade até 1h antes</div>`
+          : `<div class="palpite-label">Seu palpite <span class="palpite-custo-inline">${fmtBRL(custo)}</span></div>`
+        }
+        <div class="palpite-grid">
+          <input class="palpite-input ${pago ? 'pago' : ''}" type="number" min="0" max="20" placeholder="0"
+            value="${v1}" data-jogo="${jogo.id}" data-campo="gols1">
+          <div class="palpite-x">×</div>
+          <input class="palpite-input ${pago ? 'pago' : ''}" type="number" min="0" max="20" placeholder="0"
+            value="${v2}" data-jogo="${jogo.id}" data-campo="gols2">
+        </div>
+        ${!pago && pal
+          ? `<div class="palpite-salvo">💾 Salvo — confirme o pagamento</div>`
+          : ''
         }
       </div>`;
   }
@@ -416,20 +442,47 @@ function onPalpiteInput(e) {
 
 async function onPalpiteChange(e) {
   const jogoId = e.target.dataset.jogo;
-  const campo  = e.target.dataset.campo;
-  const val    = parseInt(e.target.value);
-  if (isNaN(val) || val < 0) return;
-
-  // Busca o outro campo
-  const card = e.target.closest('.jogo-card');
+  const card   = e.target.closest('.jogo-card');
   const inputs = card.querySelectorAll('.palpite-input');
-  const v1 = parseInt(inputs[0].value);
-  const v2 = parseInt(inputs[1].value);
-  if (isNaN(v1) || isNaN(v2)) return;
+  const v1 = inputs[0].value.trim();
+  const v2 = inputs[1].value.trim();
 
-  // Salva palpite (não pago ainda)
-  await salvarPalpite(jogoId, v1, v2);
+  // Se qualquer campo estiver vazio, remove o palpite (não cobra)
+  if (v1 === '' || v2 === '') {
+    await removerPalpite(jogoId);
+    atualizarCustoBanner();
+    return;
+  }
+
+  const g1 = parseInt(v1);
+  const g2 = parseInt(v2);
+  if (isNaN(g1) || isNaN(g2) || g1 < 0 || g2 < 0) return;
+
+  await salvarPalpite(jogoId, g1, g2);
   atualizarCustoBanner();
+}
+
+async function removerPalpite(jogoId) {
+  if (!currentUser) return;
+  const pal = palpitesUsuario[jogoId];
+  // Pago = não remove, só edita. Apagar o campo de um palpite pago restaura o valor salvo.
+  if (pal?.pago) {
+    // Restaura os valores salvos nos inputs
+    const card = document.getElementById('jogo-' + jogoId);
+    if (card) {
+      const inputs = card.querySelectorAll('.palpite-input');
+      if (inputs[0]) inputs[0].value = pal.gols1 ?? '';
+      if (inputs[1]) inputs[1].value = pal.gols2 ?? '';
+    }
+    showToast('⚠️ Palpite pago — não pode ser removido, só editado');
+    return;
+  }
+  try {
+    const firestoreModule = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
+    await firestoreModule.deleteDoc(doc(db, 'palpites', currentUser.uid, 'jogos', jogoId));
+  } catch (e) {
+    console.warn('removerPalpite:', e);
+  }
 }
 
 async function salvarPalpite(jogoId, gols1, gols2) {
@@ -438,24 +491,33 @@ async function salvarPalpite(jogoId, gols1, gols2) {
   if (!jogo || !jogoAberto(jogo)) return;
   const fase = jogo.fase || 'grupos';
   const ref = doc(db, 'palpites', currentUser.uid, 'jogos', jogoId);
-  await setDoc(ref, {
-    jogoId, gols1, gols2, fase,
-    pago: false,
-    uid: currentUser.uid,
-    atualizadoEm: serverTimestamp(),
-  }, { merge: true });
+
+  // Se já está pago, só atualiza o placar — não muda o status de pago
+  const pal = palpitesUsuario[jogoId];
+  if (pal?.pago) {
+    await setDoc(ref, { gols1, gols2, atualizadoEm: serverTimestamp() }, { merge: true });
+    showToast('✏️ Palpite atualizado!');
+  } else {
+    await setDoc(ref, {
+      jogoId, gols1, gols2, fase,
+      pago: false,
+      uid: currentUser.uid,
+      atualizadoEm: serverTimestamp(),
+    }, { merge: true });
+  }
 }
 
 // ── CUSTO BANNER ──
 function atualizarCustoBanner() {
+  // Só conta palpites NÃO pagos, com ambos os campos preenchidos, em jogo ainda aberto
   const naoPageos = Object.entries(palpitesUsuario).filter(([id, p]) => {
+    if (p.pago) return false; // já pago = não cobra de novo
     const jogo = [...JOGOS_GRUPOS, ...Object.values(jogosKnockout)].find(j => j.id === id);
-    return jogo && jogoAberto(jogo) && !p.pago && p.gols1 != null && p.gols2 != null;
+    return jogo && jogoAberto(jogo) && p.gols1 != null && p.gols2 != null;
   });
-  const total = naoPageos.reduce((acc, [id, p]) => {
+  const total = naoPageos.reduce((acc, [id]) => {
     const jogo = [...JOGOS_GRUPOS, ...Object.values(jogosKnockout)].find(j => j.id === id);
-    const fase = jogo?.fase || 'grupos';
-    return acc + (CUSTO_PALPITE[fase] || 0);
+    return acc + (CUSTO_PALPITE[jogo?.fase || 'grupos'] || 0);
   }, 0);
 
   document.getElementById('qtdPalpites').textContent = naoPageos.length;

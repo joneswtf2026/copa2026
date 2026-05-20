@@ -11,7 +11,7 @@ export const firebaseConfig = {
 
 // UID do administrador — substitua pelo seu UID do Google após o primeiro login
 // Para descobrir: faça login e abra o console do navegador, o UID aparece no log
-export const ADMIN_UID = "SEU_UID_AQUI";
+export const ADMIN_UID = "5aXDIjuTgfZnsmjhzzxYrbJMB8K2";
 
 // Chave Pix do administrador (configurável pelo painel admin)
 // Deixe vazio para configurar pelo painel

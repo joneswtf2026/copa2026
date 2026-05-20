@@ -2,45 +2,47 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // UID do admin — substitua pelo seu
     function isAdmin() {
-      return request.auth != null && request.auth.uid == "SEU_UID_AQUI";
+      return request.auth != null && request.auth.uid == "5aXDIjuTgfZnsmjhzzxYrbJMB8K2";
     }
-
     function isLoggedIn() {
       return request.auth != null;
     }
-
     function isOwner(uid) {
       return request.auth != null && request.auth.uid == uid;
     }
 
-    // Config do site — só admin escreve, todos leem
+    // Álbum de figurinhas (projeto antigo)
+    match /users/{userId}/{document=**} {
+      allow read, write: if isOwner(userId);
+    }
+
+    // Bolão — Config do site
     match /config/{doc} {
       allow read: if isLoggedIn();
       allow write: if isAdmin();
     }
 
-    // Usuários — cada um lê/escreve o próprio, admin lê todos
+    // Bolão — Usuários
     match /usuarios/{uid} {
       allow read: if isLoggedIn();
       allow write: if isOwner(uid) || isAdmin();
     }
 
-    // Palpites — cada um lê/escreve os próprios, admin lê todos
+    // Bolão — Palpites
     match /palpites/{uid}/jogos/{jogoId} {
       allow read: if isOwner(uid) || isAdmin();
       allow create, update: if isOwner(uid);
       allow delete: if isAdmin();
     }
 
-    // Resultados — só admin escreve, todos leem
+    // Bolão — Resultados
     match /resultados/{jogoId} {
       allow read: if isLoggedIn();
       allow write: if isAdmin();
     }
 
-    // Pagamentos — usuário cria o próprio, admin lê/atualiza todos
+    // Bolão — Pagamentos
     match /pagamentos/{pedidoId} {
       allow read: if isAdmin() || (isLoggedIn() && resource.data.uid == request.auth.uid);
       allow create: if isLoggedIn();
@@ -48,7 +50,7 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
-    // Jogos do mata-mata — só admin escreve, todos leem
+    // Bolão — Jogos do mata-mata
     match /jogos_knockout/{jogoId} {
       allow read: if isLoggedIn();
       allow write: if isAdmin();
