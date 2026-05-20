@@ -125,11 +125,16 @@ async function initApp(user) {
   console.log('=== SEU UID ===', user.uid, '=== copie este valor ===');
 
   // Se ainda não tem admin configurado, mostra o UID na tela
-  if (ADMIN_UID === 'SEU_UID_AQUI') {
-    const banner = document.createElement('div');
-    banner.style.cssText = 'position:fixed;top:60px;left:0;right:0;background:#f59e0b;color:#000;padding:12px 16px;z-index:9999;font-size:13px;font-weight:700;text-align:center;word-break:break-all;';
-    banner.innerHTML = '⚙️ SEU UID (copie e envie para o desenvolvedor): <span style="background:#fff;padding:2px 8px;border-radius:4px;margin-left:6px;user-select:all">' + user.uid + '</span>';
-    document.body.appendChild(banner);
+  if (ADMIN_UID === 'SEU_UID_AQUI' || user.uid !== ADMIN_UID) {
+    // Mostra sempre até o admin estar configurado corretamente
+    const jaExiste = document.getElementById('uid-banner');
+    if (!jaExiste && ADMIN_UID === 'SEU_UID_AQUI') {
+      const banner = document.createElement('div');
+      banner.id = 'uid-banner';
+      banner.style.cssText = 'position:fixed;top:60px;left:0;right:0;background:#f59e0b;color:#000;padding:14px 16px;z-index:9999;font-size:13px;font-weight:700;text-align:center;word-break:break-all;box-shadow:0 2px 8px rgba(0,0,0,.2);';
+      banner.innerHTML = '⚙️ SEU UID COMPLETO (selecione tudo e copie):<br><span id="uid-val" style="background:#fff;padding:4px 10px;border-radius:6px;margin-top:6px;display:inline-block;font-family:monospace;font-size:14px;letter-spacing:1px;user-select:all;cursor:text">' + user.uid + '</span><br><small style="font-weight:400;opacity:.8">(' + user.uid.length + ' caracteres)</small>';
+      document.body.appendChild(banner);
+    }
   }
 
   // Listeners em tempo real
