@@ -122,7 +122,15 @@ async function initApp(user) {
   await loadConfig();
 
   // Loga o UID no console para configuração inicial do admin
-  console.log('UID do usuário:', user.uid, '— copie este valor para firebase-config.js se for admin');
+  console.log('=== SEU UID ===', user.uid, '=== copie este valor ===');
+
+  // Se ainda não tem admin configurado, mostra o UID na tela
+  if (ADMIN_UID === 'SEU_UID_AQUI') {
+    const banner = document.createElement('div');
+    banner.style.cssText = 'position:fixed;top:60px;left:0;right:0;background:#f59e0b;color:#000;padding:12px 16px;z-index:9999;font-size:13px;font-weight:700;text-align:center;word-break:break-all;';
+    banner.innerHTML = '⚙️ SEU UID (copie e envie para o desenvolvedor): <span style="background:#fff;padding:2px 8px;border-radius:4px;margin-left:6px;user-select:all">' + user.uid + '</span>';
+    document.body.appendChild(banner);
+  }
 
   // Listeners em tempo real
   subscribeResultados();
@@ -167,6 +175,8 @@ function subscribeResultados() {
     if (currentPage === 'premios') renderPremios();
     if (currentPage === 'meus-palpites') renderMeusPalpites();
     if (currentPage === 'chaveamento') renderChaveamento();
+  }, err => {
+    console.warn('Firestore resultados:', err.code);
   });
   unsubListeners.push(unsub);
 }
@@ -181,7 +191,8 @@ function subscribePalpitesUsuario() {
       atualizarCustoBanner();
       if (currentPage === 'palpites') renderPalpites();
       if (currentPage === 'meus-palpites') renderMeusPalpites();
-    }
+    },
+    err => { console.warn('Firestore palpites:', err.code); }
   );
   unsubListeners.push(unsub);
 }
@@ -192,6 +203,8 @@ function subscribeKnockout() {
     snap.forEach(d => { jogosKnockout[d.id] = d.data(); });
     if (currentPage === 'palpites') renderPalpites();
     if (currentPage === 'chaveamento') renderChaveamento();
+  }, err => {
+    console.warn('Firestore knockout:', err.code);
   });
   unsubListeners.push(unsub);
 }
