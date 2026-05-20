@@ -31,6 +31,22 @@ export const BANDEIRAS = {
   "Inglaterra": "🏴󠁧󠁢󠁥󠁮󠁧󠁿", "Croácia": "🇭🇷", "Gana": "🇬🇭", "Panamá": "🇵🇦",
 };
 
+// Códigos ISO para imagens de bandeira (fallback via flagcdn.com)
+export const CODIGOS_PAIS = {
+  "México": "mx", "África do Sul": "za", "Coreia do Sul": "kr", "Rep. Tcheca": "cz",
+  "Canadá": "ca", "Bósnia": "ba", "Catar": "qa", "Suíça": "ch",
+  "Brasil": "br", "Marrocos": "ma", "Haiti": "ht", "Escócia": "gb-sct",
+  "EUA": "us", "Paraguai": "py", "Austrália": "au", "Turquia": "tr",
+  "Alemanha": "de", "Curaçao": "cw", "Costa do Marfim": "ci", "Equador": "ec",
+  "Holanda": "nl", "Japão": "jp", "Suécia": "se", "Tunísia": "tn",
+  "Bélgica": "be", "Egito": "eg", "Irã": "ir", "Nova Zelândia": "nz",
+  "Espanha": "es", "Cabo Verde": "cv", "Arábia Saudita": "sa", "Uruguai": "uy",
+  "França": "fr", "Senegal": "sn", "Iraque": "iq", "Noruega": "no",
+  "Argentina": "ar", "Argélia": "dz", "Áustria": "at", "Jordânia": "jo",
+  "Portugal": "pt", "Congo DR": "cd", "Uzbequistão": "uz", "Colômbia": "co",
+  "Inglaterra": "gb-eng", "Croácia": "hr", "Gana": "gh", "Panamá": "pa",
+};
+
 // Todos os 48 jogos da fase de grupos
 // Horários em UTC-3 (horário de Brasília)
 export const JOGOS_GRUPOS = [

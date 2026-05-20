@@ -1,6 +1,6 @@
 // ── BOLÃO COPA 2026 ──
 import { firebaseConfig, ADMIN_UID } from './firebase-config.js';
-import { JOGOS_GRUPOS, GRUPOS, BANDEIRAS, PONTUACAO, CUSTO_PALPITE, DISTRIBUICAO_PREMIO, CHAVEAMENTO_R32 } from './data.js';
+import { JOGOS_GRUPOS, GRUPOS, BANDEIRAS, CODIGOS_PAIS, PONTUACAO, CUSTO_PALPITE, DISTRIBUICAO_PREMIO, CHAVEAMENTO_R32 } from './data.js';
 
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
 import {
@@ -49,7 +49,19 @@ function jogoEncerrado(jogo) {
 function temResultado(jogoId) {
   return resultados[jogoId] != null;
 }
-function flag(time) { return BANDEIRAS[time] || '🏳️'; }
+// Retorna imagem de bandeira — usa flagcdn.com para garantir compatibilidade
+function flag(time) {
+  const cod = CODIGOS_PAIS[time];
+  if (!cod) return '<span style="font-size:20px">🏳️</span>';
+  return `<img src="https://flagcdn.com/w40/${cod}.png" alt="${time}" style="width:28px;height:20px;object-fit:cover;border-radius:3px;vertical-align:middle" onerror="this.style.display='none'">`;
+}
+
+// Versão pequena para abas
+function flagSm(time) {
+  const cod = CODIGOS_PAIS[time];
+  if (!cod) return '';
+  return `<img src="https://flagcdn.com/w20/${cod}.png" alt="${time}" style="width:18px;height:13px;object-fit:cover;border-radius:2px" onerror="this.style.display='none'">`;
+}
 
 // ── TOAST ──
 let toastTimer;
@@ -277,8 +289,7 @@ function renderGrupoTabs() {
   const grupos = Object.keys(GRUPOS);
   el.innerHTML = grupos.map(g => {
     const times = GRUPOS[g].times;
-    const flags = times.slice(0, 4).map(t => flag(t)).join('');
-    // Conta palpites pagos neste grupo
+    const flags = times.map(t => flagSm(t)).join('');
     const temPal = JOGOS_GRUPOS.filter(j => j.grupo === g)
       .some(j => palpitesUsuario[j.id]?.pago);
     return `
@@ -963,17 +974,18 @@ async function renderMeusPalpites() {
 async function renderAdmin() {
   if (!isAdmin) {
     document.getElementById('adminContainer').innerHTML = `
-      <div class="empty-state"><div class="empty-state-icon">🔒</div><div class="empty-state-titulo">Acesso restrito</div></div>`;
+      <div class="empty-state"><div class="empty-state-icon">🔒</div><div class="empty-state-titulo">Acesso restrito</div><div class="empty-state-desc">UID atual: ${currentUser?.uid}</div></div>`;
     return;
   }
   const container = document.getElementById('adminContainer');
   container.innerHTML = '<div class="loading"><div class="spinner"></div> Carregando...</div>';
 
-  // Busca dados
-  const [usersSnap, pagSnap] = await Promise.all([
-    getDocs(collection(db, 'usuarios')),
-    getDocs(collection(db, 'pagamentos')),
-  ]);
+  try {
+    // Busca dados
+    const [usersSnap, pagSnap] = await Promise.all([
+      getDocs(collection(db, 'usuarios')),
+      getDocs(collection(db, 'pagamentos')),
+    ]);
 
   const users = [];
   usersSnap.forEach(d => users.push(d.data()));
@@ -1089,6 +1101,10 @@ async function renderAdmin() {
           </div>`).join('')}
       </div>
     </div>`;
+  } catch (err) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">❌</div><div class="empty-state-titulo">Erro ao carregar</div><div class="empty-state-desc">${err.code || err.message}<br><br>Verifique se as regras do Firestore foram publicadas.</div></div>`;
+    console.error('renderAdmin error:', err);
+  }
 }
 
 // ── ADMIN: APROVAR/REJEITAR PAGAMENTO ──

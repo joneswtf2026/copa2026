@@ -551,8 +551,8 @@ img { display: block; }
   background: #fff; border: 2px solid var(--borda); color: var(--texto3);
   transition: all .15s; cursor: pointer; min-width: 52px;
 }
-.grupo-tab .gt-letra { font-size: 15px; font-weight: 800; }
-.grupo-tab .gt-flags { font-size: 13px; letter-spacing: -2px; }
+.grupo-tab .gt-letra { font-size: 13px; font-weight: 800; }
+.grupo-tab .gt-flags { display: flex; gap: 2px; align-items: center; flex-wrap: wrap; justify-content: center; }
 .grupo-tab.active {
   background: var(--verde); border-color: var(--verde); color: #fff;
 }
