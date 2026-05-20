@@ -1,197 +1,394 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#064e3b">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Bol├úo Copa 2026">
-<meta name="description" content="Bol├úo oficial da Copa do Mundo 2026 ÔÇö palpite, pontue e ganhe!">
-<title>Bol├úo Copa 2026</title>
-<link rel="manifest" href="manifest.json">
-<link rel="icon" type="image/png" sizes="192x192" href="../copa2026/icon-192.png">
-<link rel="apple-touch-icon" href="../copa2026/icon-192.png">
-<link rel="stylesheet" href="style.css">
-</head>
-<body>
-
-<!-- SPLASH -->
-<div id="splash" class="splash">
-  <div class="splash-inner">
-    <div class="splash-ball">ÔÜ¢</div>
-    <h1>Bol├úo Copa 2026</h1>
-    <p>Carregando...</p>
-  </div>
-</div>
-
-<!-- LOGIN SCREEN -->
-<div id="loginScreen" class="screen hidden">
-  <div class="login-card">
-    <div class="login-logo">ÔÜ¢</div>
-    <h1>Bol├úo Copa 2026</h1>
-    <p class="login-sub">Palpite nos jogos, acumule pontos e concorra aos pr├¬mios!</p>
-    <div class="login-features">
-      <div class="feature-item">­ƒÅå Premia├º├úo por fase</div>
-      <div class="feature-item">­ƒôè Ranking em tempo real</div>
-      <div class="feature-item">ÔÜ¢ 104 jogos para palpitar</div>
-    </div>
-    <button class="btn-google" id="btnLogin">
-      <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/><path fill="none" d="M0 0h48v48H0z"/></svg>
-      Entrar com Google
-    </button>
-    <p class="login-note">Use sua conta corporativa ou pessoal do Google</p>
-  </div>
-</div>
-
-<!-- APP PRINCIPAL -->
-<div id="app" class="hidden">
-
-  <!-- HEADER -->
-  <header class="header" id="header">
-    <div class="header-inner">
-      <div class="header-left">
-        <button class="menu-btn" id="menuBtn" onclick="toggleMenu()" aria-label="Menu">Ôÿ░</button>
-        <span class="header-title">ÔÜ¢ Bol├úo Copa 2026</span>
-      </div>
-      <div class="header-right">
-        <span class="user-name" id="userName"></span>
-        <img class="user-avatar" id="userAvatar" src="" alt="Avatar" style="display:none">
-        <button class="icon-btn" onclick="logout()" title="Sair">­ƒÜ¬</button>
-      </div>
-    </div>
-  </header>
-
-  <!-- MENU LATERAL -->
-  <div class="menu-overlay hidden" id="menuOverlay" onclick="toggleMenu()"></div>
-  <nav class="sidebar" id="sidebar">
-    <div class="sidebar-header">
-      <img class="sidebar-avatar" id="sidebarAvatar" src="" alt="">
-      <div>
-        <div class="sidebar-name" id="sidebarName"></div>
-        <div class="sidebar-email" id="sidebarEmail"></div>
-      </div>
-    </div>
-    <div class="sidebar-menu">
-      <button class="menu-item active" data-page="palpites" onclick="navTo('palpites')">ÔÜ¢ Palpites</button>
-      <button class="menu-item" data-page="ranking" onclick="navTo('ranking')">­ƒÅå Ranking</button>
-      <button class="menu-item" data-page="chaveamento" onclick="navTo('chaveamento')">­ƒôï Chaveamento</button>
-      <button class="menu-item" data-page="premios" onclick="navTo('premios')">­ƒÆ░ Pr├¬mios</button>
-      <button class="menu-item" data-page="meus-palpites" onclick="navTo('meus-palpites')">­ƒôØ Meus Palpites</button>
-      <div class="menu-divider"></div>
-      <button class="menu-item admin-item hidden" data-page="admin" onclick="navTo('admin')">ÔÜÖ´©Å Administra├º├úo</button>
-    </div>
-    <div class="sidebar-footer">
-      <button class="menu-item" onclick="logout()">­ƒÜ¬ Sair</button>
-    </div>
-  </nav>
-
-  <!-- CONTE├ÜDO PRINCIPAL -->
-  <main class="main" id="main">
-
-    <!-- P├üGINA: PALPITES -->
-    <div id="page-palpites" class="page active">
-      <div class="page-header">
-        <h2>ÔÜ¢ Palpites</h2>
-        <div class="fase-tabs" id="faseTabs">
-          <button class="fase-tab active" data-fase="grupos" onclick="setFase('grupos')">Grupos</button>
-          <button class="fase-tab" data-fase="oitavas" onclick="setFase('oitavas')">Oitavas</button>
-          <button class="fase-tab" data-fase="quartas" onclick="setFase('quartas')">Quartas</button>
-          <button class="fase-tab" data-fase="semi" onclick="setFase('semi')">Semi</button>
-          <button class="fase-tab" data-fase="final" onclick="setFase('final')">Final</button>
-        </div>
-      </div>
-
-      <!-- Resumo de custo -->
-      <div class="custo-banner" id="custoBanner">
-        <div class="custo-info">
-          <span id="custoTexto">Palpites selecionados: <strong id="qtdPalpites">0</strong></span>
-          <span class="custo-valor">Total: <strong id="custoTotal">R$ 0,00</strong></span>
-        </div>
-        <button class="btn-pagar" id="btnPagar" onclick="abrirCheckout()" disabled>Confirmar e Pagar</button>
-      </div>
-
-      <div id="jogosContainer"></div>
-    </div>
-
-    <!-- P├üGINA: RANKING -->
-    <div id="page-ranking" class="page hidden">
-      <div class="page-header">
-        <h2>­ƒÅå Ranking</h2>
-        <div class="fase-tabs">
-          <button class="fase-tab active" data-rank="geral" onclick="setRankFase('geral')">Geral</button>
-          <button class="fase-tab" data-rank="grupos" onclick="setRankFase('grupos')">Grupos</button>
-          <button class="fase-tab" data-rank="oitavas" onclick="setRankFase('oitavas')">Oitavas</button>
-          <button class="fase-tab" data-rank="quartas" onclick="setRankFase('quartas')">Quartas</button>
-          <button class="fase-tab" data-rank="semi" onclick="setRankFase('semi')">Semi</button>
-          <button class="fase-tab" data-rank="final" onclick="setRankFase('final')">Final</button>
-        </div>
-      </div>
-      <div class="ranking-stats" id="rankingStats"></div>
-      <div id="rankingContainer"></div>
-    </div>
-
-    <!-- P├üGINA: CHAVEAMENTO -->
-    <div id="page-chaveamento" class="page hidden">
-      <div class="page-header">
-        <h2>­ƒôï Chaveamento</h2>
-      </div>
-      <div id="chaveamentoContainer"></div>
-    </div>
-
-    <!-- P├üGINA: PR├èMIOS -->
-    <div id="page-premios" class="page hidden">
-      <div class="page-header">
-        <h2>­ƒÆ░ Pr├¬mios</h2>
-      </div>
-      <div id="premiosContainer"></div>
-    </div>
-
-    <!-- P├üGINA: MEUS PALPITES -->
-    <div id="page-meus-palpites" class="page hidden">
-      <div class="page-header">
-        <h2>­ƒôØ Meus Palpites</h2>
-      </div>
-      <div id="meusPalpitesContainer"></div>
-    </div>
-
-    <!-- P├üGINA: ADMIN -->
-    <div id="page-admin" class="page hidden">
-      <div class="page-header">
-        <h2>ÔÜÖ´©Å Administra├º├úo</h2>
-      </div>
-      <div id="adminContainer"></div>
-    </div>
-
-  </main>
-</div>
-
-<!-- MODAL CHECKOUT / PIX -->
-<div class="modal-overlay hidden" id="modalCheckout">
-  <div class="modal-box">
-    <div class="modal-header">
-      <h3>­ƒÆ│ Confirmar Palpites</h3>
-      <button class="modal-close" onclick="fecharCheckout()">Ô£ò</button>
-    </div>
-    <div id="checkoutContent"></div>
-  </div>
-</div>
-
-<!-- MODAL RESULTADO (admin) -->
-<div class="modal-overlay hidden" id="modalResultado">
-  <div class="modal-box">
-    <div class="modal-header">
-      <h3>ÔÜ¢ Inserir Resultado</h3>
-      <button class="modal-close" onclick="fecharModalResultado()">Ô£ò</button>
-    </div>
-    <div id="resultadoContent"></div>
-  </div>
-</div>
-
-<!-- TOAST -->
-<div class="toast hidden" id="toast"></div>
-
-<script type="module" src="app.js"></script>
-</body>
-</html>
+<!DOCTYPE html>
+
+<html lang="pt-BR">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<meta name="theme-color" content="#064e3b">
+
+<meta name="mobile-web-app-capable" content="yes">
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+<meta name="apple-mobile-web-app-title" content="Bolão Copa 2026">
+
+<meta name="description" content="Bolão oficial da Copa do Mundo 2026 – palpite, pontue e ganhe!">
+
+<title>Bolão Copa 2026</title>
+
+<link rel="manifest" href="manifest.json">
+
+<link rel="icon" type="image/png" sizes="192x192" href="../copa2026/icon-192.png">
+
+<link rel="apple-touch-icon" href="../copa2026/icon-192.png">
+
+<link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+
+
+<!-- SPLASH -->
+
+<div id="splash" class="splash">
+
+  <div class="splash-inner">
+
+    <div class="splash-ball">⚽</div>
+
+    <h1>Bolão Copa 2026</h1>
+
+    <p>Carregando...</p>
+
+  </div>
+
+</div>
+
+
+
+<!-- LOGIN SCREEN -->
+
+<div id="loginScreen" class="screen hidden">
+
+  <div class="login-card">
+
+    <div class="login-logo">⚽</div>
+
+    <h1>Bolão Copa 2026</h1>
+
+    <p class="login-sub">Palpite nos jogos, acumule pontos e concorra aos prêmios!</p>
+
+    <div class="login-features">
+
+      <div class="feature-item">🏆 Premiação por fase</div>
+
+      <div class="feature-item">📈 Ranking em tempo real</div>
+
+      <div class="feature-item">⚽ 104 jogos para palpitar</div>
+
+    </div>
+
+    <button class="btn-google" id="btnLogin">
+
+      <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/><path fill="none" d="M0 0h48v48H0z"/></svg>
+
+      Entrar com Google
+
+    </button>
+
+    <p class="login-note">Use sua conta corporativa ou pessoal do Google</p>
+
+  </div>
+
+</div>
+
+
+
+<!-- APP PRINCIPAL -->
+
+<div id="app" class="hidden">
+
+
+
+  <!-- HEADER -->
+
+  <header class="header" id="header">
+
+    <div class="header-inner">
+
+      <div class="header-left">
+
+        <button class="menu-btn" id="menuBtn" onclick="toggleMenu()" aria-label="Menu">☰</button>
+
+        <span class="header-title">⚽ Bolão Copa 2026</span>
+
+      </div>
+
+      <div class="header-right">
+
+        <span class="user-name" id="userName"></span>
+
+        <img class="user-avatar" id="userAvatar" src="" alt="Avatar" style="display:none">
+
+        <button class="icon-btn" onclick="logout()" title="Sair">⎋</button>
+
+      </div>
+
+    </div>
+
+  </header>
+
+
+
+  <!-- MENU LATERAL -->
+
+  <div class="menu-overlay hidden" id="menuOverlay" onclick="toggleMenu()"></div>
+
+  <nav class="sidebar" id="sidebar">
+
+    <div class="sidebar-header">
+
+      <img class="sidebar-avatar" id="sidebarAvatar" src="" alt="">
+
+      <div>
+
+        <div class="sidebar-name" id="sidebarName"></div>
+
+        <div class="sidebar-email" id="sidebarEmail"></div>
+
+      </div>
+
+    </div>
+
+    <div class="sidebar-menu">
+
+      <button class="menu-item active" data-page="palpites" onclick="navTo('palpites')">⚽ Palpites</button>
+
+      <button class="menu-item" data-page="ranking" onclick="navTo('ranking')">🏆 Ranking</button>
+
+      <button class="menu-item" data-page="chaveamento" onclick="navTo('chaveamento')">🗂 Chaveamento</button>
+
+      <button class="menu-item" data-page="premios" onclick="navTo('premios')">🎖 Prêmios</button>
+
+      <button class="menu-item" data-page="meus-palpites" onclick="navTo('meus-palpites')">📝 Meus Palpites</button>
+
+      <div class="menu-divider"></div>
+
+      <button class="menu-item admin-item hidden" data-page="admin" onclick="navTo('admin')">⚙ Administração</button>
+
+    </div>
+
+    <div class="sidebar-footer">
+
+      <button class="menu-item" onclick="logout()">⎋ Sair</button>
+
+    </div>
+
+  </nav>
+
+
+
+  <!-- CONTEÚDO PRINCIPAL -->
+
+  <main class="main" id="main">
+
+
+
+    <!-- PÁGINA: PALPITES -->
+
+    <div id="page-palpites" class="page active">
+
+      <div class="page-header">
+
+        <h2>⚽ Palpites</h2>
+
+        <div class="fase-tabs" id="faseTabs">
+
+          <button class="fase-tab active" data-fase="grupos" onclick="setFase('grupos')">Grupos</button>
+
+          <button class="fase-tab" data-fase="oitavas" onclick="setFase('oitavas')">Oitavas</button>
+
+          <button class="fase-tab" data-fase="quartas" onclick="setFase('quartas')">Quartas</button>
+
+          <button class="fase-tab" data-fase="semi" onclick="setFase('semi')">Semi</button>
+
+          <button class="fase-tab" data-fase="final" onclick="setFase('final')">Final</button>
+
+        </div>
+
+      </div>
+
+
+
+      <!-- Resumo de custo -->
+
+      <div class="custo-banner" id="custoBanner">
+
+        <div class="custo-info">
+
+          <span id="custoTexto">Palpites selecionados: <strong id="qtdPalpites">0</strong></span>
+
+          <span class="custo-valor">Total: <strong id="custoTotal">R$ 0,00</strong></span>
+
+        </div>
+
+        <button class="btn-pagar" id="btnPagar" onclick="abrirCheckout()" disabled>Confirmar e Pagar</button>
+
+      </div>
+
+
+
+      <div id="jogosContainer"></div>
+
+    </div>
+
+
+
+    <!-- PÁGINA: RANKING -->
+
+    <div id="page-ranking" class="page hidden">
+
+      <div class="page-header">
+
+        <h2>🏆 Ranking</h2>
+
+        <div class="fase-tabs">
+
+          <button class="fase-tab active" data-rank="geral" onclick="setRankFase('geral')">Geral</button>
+
+          <button class="fase-tab" data-rank="grupos" onclick="setRankFase('grupos')">Grupos</button>
+
+          <button class="fase-tab" data-rank="oitavas" onclick="setRankFase('oitavas')">Oitavas</button>
+
+          <button class="fase-tab" data-rank="quartas" onclick="setRankFase('quartas')">Quartas</button>
+
+          <button class="fase-tab" data-rank="semi" onclick="setRankFase('semi')">Semi</button>
+
+          <button class="fase-tab" data-rank="final" onclick="setRankFase('final')">Final</button>
+
+        </div>
+
+      </div>
+
+      <div class="ranking-stats" id="rankingStats"></div>
+
+      <div id="rankingContainer"></div>
+
+    </div>
+
+
+
+    <!-- PÁGINA: CHAVEAMENTO -->
+
+    <div id="page-chaveamento" class="page hidden">
+
+      <div class="page-header">
+
+        <h2>🗂 Chaveamento</h2>
+
+      </div>
+
+      <div id="chaveamentoContainer"></div>
+
+    </div>
+
+
+
+    <!-- PÁGINA: PRÊMIOS -->
+
+    <div id="page-premios" class="page hidden">
+
+      <div class="page-header">
+
+        <h2>🎖 Prêmios</h2>
+
+      </div>
+
+      <div id="premiosContainer"></div>
+
+    </div>
+
+
+
+    <!-- PÁGINA: MEUS PALPITES -->
+
+    <div id="page-meus-palpites" class="page hidden">
+
+      <div class="page-header">
+
+        <h2>📝 Meus Palpites</h2>
+
+      </div>
+
+      <div id="meusPalpitesContainer"></div>
+
+    </div>
+
+
+
+    <!-- PÁGINA: ADMIN -->
+
+    <div id="page-admin" class="page hidden">
+
+      <div class="page-header">
+
+        <h2>⚙ Administração</h2>
+
+      </div>
+
+      <div id="adminContainer"></div>
+
+    </div>
+
+
+
+  </main>
+
+</div>
+
+
+
+<!-- MODAL CHECKOUT / PIX -->
+
+<div class="modal-overlay hidden" id="modalCheckout">
+
+  <div class="modal-box">
+
+    <div class="modal-header">
+
+      <h3>📌 Confirmar Palpites</h3>
+
+      <button class="modal-close" onclick="fecharCheckout()">✖</button>
+
+    </div>
+
+    <div id="checkoutContent"></div>
+
+  </div>
+
+</div>
+
+
+
+<!-- MODAL RESULTADO (admin) -->
+
+<div class="modal-overlay hidden" id="modalResultado">
+
+  <div class="modal-box">
+
+    <div class="modal-header">
+
+      <h3>⚽ Inserir Resultado</h3>
+
+      <button class="modal-close" onclick="fecharModalResultado()">✖</button>
+
+    </div>
+
+    <div id="resultadoContent"></div>
+
+  </div>
+
+</div>
+
+
+
+<!-- TOAST -->
+
+<div class="toast hidden" id="toast"></div>
+
+
+
+<script type="module" src="app.js"></script>
+
+</body>
+
+</html>
+
