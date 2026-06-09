@@ -1,4 +1,4 @@
-// ── BOLÃO COPA 2026 ──
+// ── BOLÃO COPA 2026 — v1.5 ──
 import { firebaseConfig, ADMIN_UID } from './firebase-config.js';
 import { JOGOS_GRUPOS, GRUPOS, CODIGOS_PAIS, PONTUACAO, CUSTO_PALPITE, DISTRIBUICAO_PREMIO, CHAVEAMENTO_R32 } from './data.js?v=3';
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
@@ -167,6 +167,8 @@ function subscribeKnockout() {
 
 // ── NAVEGAÇÃO ──
 function toggleMenu() {
+  // No desktop a sidebar é fixa — hamburguer só funciona no mobile
+  if (window.innerWidth >= 900) return;
   document.getElementById('sidebar').classList.toggle('open');
   document.getElementById('menuOverlay').classList.toggle('hidden');
 }
@@ -174,8 +176,11 @@ window.toggleMenu = toggleMenu;
 
 function navTo(page) {
   currentPage = page;
-  document.getElementById('sidebar').classList.remove('open');
-  document.getElementById('menuOverlay').classList.add('hidden');
+  // Fecha menu (só no mobile)
+  if (window.innerWidth < 900) {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('menuOverlay').classList.add('hidden');
+  }
   document.querySelectorAll('.menu-item').forEach(el => el.classList.toggle('active', el.dataset.page === page));
   document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
   const pg = document.getElementById('page-' + page);
