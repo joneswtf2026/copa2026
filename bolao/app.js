@@ -794,11 +794,11 @@ function renderMeusPalpites() {
 // ADMIN
 function renderAdmin() {
   if (!isAdmin) {
-    document.getElementById('adminContainer').innerHTML = '<div class="empty-state"><div class="empty-state-icon">!</div><div class="empty-state-titulo">Acesso restrito</div><div class="empty-state-desc">UID: ' + (currentUser ? currentUser.uid : '') + '</div></div>';
+    document.getElementById('adminContainer').innerHTML = '<div class="empty-state"><div class="empty-state-icon">!</div><div class="empty-state-titulo">Acesso restrito</div><div class="empty-state-desc">isAdmin=' + isAdmin + ' UID=' + (currentUser ? currentUser.uid : 'none') + ' ADMIN_UID=' + ADMIN_UID + '</div></div>';
     return;
   }
   var container = document.getElementById('adminContainer');
-  container.innerHTML = '<div class="loading"><div class="spinner"></div> Carregando...</div>';
+  container.innerHTML = '<div class="loading"><div class="spinner"></div> Carregando admin...</div>';
 
   return Promise.all([
     getDocs(collection(db, 'usuarios')),
