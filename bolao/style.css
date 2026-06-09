@@ -1,6 +1,6 @@
-/* ══════════════════════════════════════
-   BOLÃO COPA 2026 — Design System v3
-   ══════════════════════════════════════ */
+/*                                       
+   BOLÃO COPA 2026   Design System v3
+                                          */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
   --verde:       #064e3b;
@@ -41,7 +41,7 @@ img { display: block; max-width: 100%; }
 input { font-family: inherit; }
 .hidden { display: none !important; }
 
-/* ── SPLASH ── */
+/*    SPLASH    */
 .splash {
   position: fixed; inset: 0;
   background: linear-gradient(160deg, var(--verde) 0%, #0a7a5a 100%);
@@ -54,7 +54,7 @@ input { font-family: inherit; }
 .splash p  { margin-top: 8px; opacity: .65; font-size: 15px; }
 @keyframes bounce { from { transform: translateY(0) scale(1); } to { transform: translateY(-14px) scale(1.05); } }
 
-/* ── LOGIN ── */
+/*    LOGIN    */
 .screen {
   position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
   background: linear-gradient(160deg, var(--verde) 0%, #0a7a5a 60%, #0d9488 100%);
@@ -83,7 +83,7 @@ input { font-family: inherit; }
 .btn-google:hover { border-color: var(--verde); background: var(--verde-light); transform: translateY(-1px); }
 .login-note { margin-top: 14px; font-size: 12px; color: var(--texto3); }
 
-/* ── HEADER ── */
+/*    HEADER    */
 .header {
   position: fixed; top: 0; left: 0; right: 0; height: var(--header-h);
   background: var(--verde); z-index: 100; box-shadow: 0 2px 12px rgba(0,0,0,.2);
@@ -107,7 +107,7 @@ input { font-family: inherit; }
 .icon-btn { color: rgba(255,255,255,.85); font-size: 18px; padding: 7px; border-radius: 8px; transition: var(--t); }
 .icon-btn:hover { background: rgba(255,255,255,.15); color: #fff; }
 
-/* ── SIDEBAR ── */
+/*    SIDEBAR    */
 .menu-overlay {
   position: fixed; inset: 0; background: rgba(0,0,0,.45);
   z-index: 200; backdrop-filter: blur(2px); transition: opacity .25s;
@@ -143,7 +143,7 @@ input { font-family: inherit; }
 .admin-item { color: var(--ouro) !important; }
 .admin-item:hover, .admin-item.active { background: var(--ouro-light) !important; color: var(--ouro) !important; }
 
-/* ── LAYOUT PRINCIPAL ── */
+/*    LAYOUT PRINCIPAL    */
 :root { --sidebar-w: 240px; }
 
 /* Desktop: sidebar fixa, main com margem */
@@ -182,7 +182,7 @@ input { font-family: inherit; }
 .page-header { margin-bottom: 18px; }
 .page-header h2 { font-size: 22px; font-weight: 800; color: var(--verde); letter-spacing:-.4px; margin-bottom: 14px; }
 
-/* ── FASE TABS ── */
+/*    FASE TABS    */
 .fase-tabs { display: flex; gap: 6px; flex-wrap: wrap; }
 .fase-tab {
   padding: 7px 16px; border-radius: 20px; font-size: 13px; font-weight: 700;
@@ -192,7 +192,7 @@ input { font-family: inherit; }
 .fase-tab.active { background: var(--verde); border-color: var(--verde); color: #fff; box-shadow: 0 2px 8px rgba(6,78,59,.3); }
 .fase-tab:disabled { opacity: .4; cursor: not-allowed; }
 
-/* ── CUSTO BANNER ── */
+/*    CUSTO BANNER    */
 .custo-banner {
   background: #fff; border-radius: var(--radius); padding: 14px 18px;
   display: flex; align-items: center; justify-content: space-between; gap: 12px;
@@ -208,7 +208,7 @@ input { font-family: inherit; }
 .btn-pagar:hover:not(:disabled) { background: var(--verde2); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(6,78,59,.35); }
 .btn-pagar:disabled { background: var(--cinza); cursor: not-allowed; box-shadow: none; }
 
-/* ── ABAS DE GRUPO ── */
+/*    ABAS DE GRUPO    */
 .grupo-tabs-wrap { margin-bottom: 16px; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
 .grupo-tabs-wrap::-webkit-scrollbar { display: none; }
 .grupo-tabs { display: flex; gap: 6px; padding-bottom: 2px; min-width: max-content; }
@@ -224,7 +224,7 @@ input { font-family: inherit; }
 .grupo-tab.active { background: var(--verde); border-color: var(--verde); color: #fff; box-shadow: 0 2px 8px rgba(6,78,59,.3); }
 .grupo-tab.tem-palpite { border-color: var(--verde-mid); }
 
-/* ── TIMES DO GRUPO ── */
+/*    TIMES DO GRUPO    */
 .grupo-times-header { margin-bottom: 14px; }
 .grupo-times-lista  { display: flex; flex-wrap: wrap; gap: 8px; }
 .grupo-time-chip {
@@ -233,7 +233,7 @@ input { font-family: inherit; }
   padding: 6px 12px; font-size: 13px; font-weight: 600; color: var(--texto2); box-shadow: var(--sombra-sm);
 }
 
-/* ── JOGO CARD ── */
+/*    JOGO CARD    */
 .jogo-card {
   background: #fff; border-radius: var(--radius); margin-bottom: 12px;
   box-shadow: var(--sombra-sm); border: 1.5px solid var(--borda);
@@ -280,7 +280,7 @@ input { font-family: inherit; }
 .resultado-oficial img { width: 32px; height: 22px; object-fit: cover; border-radius: 3px; }
 .resultado-oficial .placar { font-size: 32px; font-weight: 900; color: var(--verde); letter-spacing: -1px; }
 
-/* ── PALPITE ── */
+/*    PALPITE    */
 .palpite-area { border-top: 1px solid var(--borda); padding: 14px 16px 16px; }
 .palpite-label { font-size: 12px; font-weight: 600; color: var(--texto3); margin-bottom: 10px; text-align: center; }
 .palpite-grid  { display: grid; grid-template-columns: 1fr 36px 1fr; align-items: center; gap: 8px; }
@@ -301,7 +301,7 @@ input { font-family: inherit; }
 .pontos-acertou { color: #166534; background: #dcfce7; }
 .pontos-errou   { color: #991b1b; background: #fee2e2; }
 
-/* ── RANKING ── */
+/*    RANKING    */
 .ranking-layout { display: grid; grid-template-columns: 150px 1fr; gap: 16px; align-items: start; }
 .ranking-sidebar {
   background: #fff; border-radius: var(--radius); box-shadow: var(--sombra-sm);
@@ -338,7 +338,7 @@ input { font-family: inherit; }
 .ranking-pts-val { font-size: 22px; font-weight: 900; color: var(--verde); letter-spacing: -.5px; }
 .ranking-pts-lbl { font-size: 11px; color: var(--texto3); font-weight: 600; }
 
-/* ── PRÊMIOS ── */
+/*    PRÊMIOS    */
 .premio-balde { background: linear-gradient(135deg, var(--verde) 0%, var(--verde4) 100%); border-radius: var(--radius); padding: 24px 20px; color: #fff; text-align: center; margin-bottom: 16px; box-shadow: var(--sombra-lg); }
 .premio-balde-titulo { font-size: 13px; opacity: .8; margin-bottom: 6px; font-weight: 600; }
 .premio-balde-valor  { font-size: 42px; font-weight: 900; letter-spacing: -1px; }
@@ -357,7 +357,7 @@ input { font-family: inherit; }
 .premio-participantes { background: var(--cinza-mid); border-radius: var(--radius); padding: 16px; text-align: center; margin-top: 16px; border: 1px solid var(--borda); }
 .premio-participantes strong { color: var(--verde); font-size: 18px; }
 
-/* ── CHAVEAMENTO ── */
+/*    CHAVEAMENTO    */
 .chave-fase-titulo { font-size: 16px; font-weight: 800; color: var(--verde); margin: 20px 0 12px; padding: 10px 14px; background: var(--verde-light); border-radius: var(--radius-sm); display: flex; align-items: center; gap: 8px; }
 .chave-jogo-v2 { background: #fff; border-radius: var(--radius); box-shadow: var(--sombra-sm); overflow: hidden; margin-bottom: 8px; border: 1.5px solid var(--borda); transition: var(--t); }
 .chave-jogo-v2:hover { box-shadow: var(--sombra); }
@@ -370,7 +370,7 @@ input { font-family: inherit; }
 .chave-placar-v2 { font-size: 22px; font-weight: 900; color: var(--verde); text-align: center; min-width: 64px; }
 .chave-placar-v2.pendente { color: var(--borda); font-size: 18px; letter-spacing: 2px; }
 
-/* ── ADMIN ── */
+/*    ADMIN    */
 .admin-section { margin-bottom: 24px; }
 .admin-section-titulo { font-size: 14px; font-weight: 800; color: var(--texto); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
 .admin-card { background: #fff; border-radius: var(--radius); padding: 16px; box-shadow: var(--sombra-sm); margin-bottom: 10px; border: 1px solid var(--borda); }
@@ -401,7 +401,7 @@ input { font-family: inherit; }
 .btn-salvar-pix { padding: 13px; border-radius: 10px; font-size: 14px; font-weight: 700; background: var(--verde); color: #fff; transition: var(--t); }
 .btn-salvar-pix:hover { background: var(--verde2); transform: translateY(-1px); }
 
-/* ── MODAL ── */
+/*    MODAL    */
 .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.55); display: flex; align-items: flex-end; justify-content: center; z-index: 500; backdrop-filter: blur(3px); }
 @media (min-width: 600px) { .modal-overlay { align-items: center; padding: 20px; } }
 .modal-box { background: #fff; border-radius: var(--radius-lg) var(--radius-lg) 0 0; width: 100%; max-width: 520px; max-height: 92vh; overflow-y: auto; animation: slideUp .28s cubic-bezier(.4,0,.2,1); }
@@ -413,7 +413,7 @@ input { font-family: inherit; }
 .modal-close:hover { background: var(--borda); color: var(--texto); }
 .modal-body { padding: 0 22px 28px; }
 
-/* ── CHECKOUT ── */
+/*    CHECKOUT    */
 .checkout-resumo { margin-bottom: 18px; }
 .checkout-jogo-item { display: flex; align-items: center; justify-content: space-between; padding: 9px 0; border-bottom: 1px solid var(--borda); font-size: 13px; gap: 8px; }
 .checkout-jogo-item:last-child { border-bottom: none; }
@@ -436,7 +436,7 @@ input { font-family: inherit; }
 .btn-confirmar-pix:disabled { background: var(--cinza); box-shadow: none; cursor: not-allowed; }
 .aguardando-badge { display: flex; align-items: center; justify-content: center; gap: 8px; background: var(--ouro-light); color: #92400e; border-radius: 10px; padding: 12px; font-size: 13px; font-weight: 700; margin-top: 14px; border: 1px solid var(--ouro-mid); }
 
-/* ── MEUS PALPITES ── */
+/*    MEUS PALPITES    */
 .meus-palpites-lista { display: flex; flex-direction: column; gap: 8px; }
 .meu-palpite-card { background: #fff; border-radius: var(--radius); padding: 14px 16px; box-shadow: var(--sombra-sm); border-left: 4px solid var(--borda); border-top: 1px solid var(--borda); border-right: 1px solid var(--borda); border-bottom: 1px solid var(--borda); }
 .meu-palpite-card.pago    { border-left-color: var(--verde3); }
@@ -449,11 +449,11 @@ input { font-family: inherit; }
 .meu-palpite-detalhe { font-size: 12px; color: var(--texto3); line-height: 1.5; }
 .meu-palpite-pontos  { font-size: 13px; font-weight: 700; margin-top: 6px; padding: 5px 10px; border-radius: 8px; display: inline-block; }
 
-/* ── TOAST ── */
+/*    TOAST    */
 .toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%); background: #1e293b; color: #fff; padding: 12px 22px; border-radius: 12px; font-size: 14px; font-weight: 600; z-index: 9999; white-space: nowrap; box-shadow: var(--sombra-lg); transition: opacity .3s; pointer-events: none; }
 .toast.hidden { opacity: 0; }
 
-/* ── EMPTY / LOADING ── */
+/*    EMPTY / LOADING    */
 .empty-state { text-align: center; padding: 52px 20px; color: var(--texto3); }
 .empty-state-icon   { font-size: 52px; margin-bottom: 14px; }
 .empty-state-titulo { font-size: 17px; font-weight: 800; color: var(--texto2); margin-bottom: 8px; }
@@ -462,7 +462,7 @@ input { font-family: inherit; }
 .spinner { width: 22px; height: 22px; border: 3px solid var(--borda); border-top-color: var(--verde); border-radius: 50%; animation: spin .7s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* ── RESPONSIVO ── */
+/*    RESPONSIVO    */
 @media (max-width: 520px) {
   .ranking-layout { grid-template-columns: 1fr; }
   .ranking-sidebar { position: static; display: flex; flex-wrap: wrap; gap: 6px; padding: 10px; }
@@ -476,7 +476,7 @@ input { font-family: inherit; }
   .admin-stats-grid { grid-template-columns: repeat(2,1fr); }
 }
 
-/* ── TABELA DE AUDITORIA ── */
+/*    TABELA DE AUDITORIA    */
 .audit-table {
   width: 100%; border-collapse: collapse; font-size: 13px;
 }
