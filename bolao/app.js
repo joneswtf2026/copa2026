@@ -805,6 +805,7 @@ function renderAdmin() {
     getDocs(collection(db, 'pagamentos'))
   ]).then(function(results) {
     var usersSnap = results[0], pagSnap = results[1];
+    console.log('admin: usuarios=', usersSnap.size, 'pagamentos=', pagSnap.size);
     var users = [];
     usersSnap.forEach(function(d) { users.push(d.data()); });
     var pagamentos = [];
