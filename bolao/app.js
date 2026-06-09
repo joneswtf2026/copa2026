@@ -1,4 +1,4 @@
-// ── BOLÃO COPA 2026 — v1.6 ──
+// ── BOLÃO COPA 2026 — v1.7 ──
 import { firebaseConfig, ADMIN_UID } from './firebase-config.js';
 import { JOGOS_GRUPOS, GRUPOS, CODIGOS_PAIS, PONTUACAO, CUSTO_PALPITE, DISTRIBUICAO_PREMIO, CHAVEAMENTO_R32 } from './data.js?v=3';
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
@@ -198,13 +198,30 @@ function navTo(page) {
   document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
   const pg = document.getElementById('page-' + page);
   if (pg) pg.classList.add('active');
-  switch (page) {
-    case 'palpites':      renderPalpites(); break;
-    case 'ranking':       renderRanking(); break;
-    case 'chaveamento':   renderChaveamento(); break;
-    case 'premios':       renderPremios(); break;
-    case 'meus-palpites': renderMeusPalpites(); break;
-    case 'admin':         renderAdmin(); break;
+
+  const renders = {
+    'palpites':      renderPalpites,
+    'ranking':       renderRanking,
+    'chaveamento':   renderChaveamento,
+    'premios':       renderPremios,
+    'meus-palpites': renderMeusPalpites,
+    'admin':         renderAdmin,
+  };
+  const fn = renders[page];
+  if (fn) {
+    Promise.resolve().then(() => fn()).catch(err => {
+      console.error('Erro ao renderizar', page, err);
+      const cont = document.getElementById(
+        page === 'meus-palpites' ? 'meusPalpitesContainer' :
+        page === 'admin'        ? 'adminContainer' :
+        page + 'Container'
+      );
+      if (cont) cont.innerHTML = `<div class="empty-state">
+        <div class="empty-state-icon">❌</div>
+        <div class="empty-state-titulo">Erro ao carregar</div>
+        <div class="empty-state-desc" style="font-family:monospace;font-size:12px">${err.message}</div>
+      </div>`;
+    });
   }
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -574,7 +591,8 @@ async function renderRanking() {
   const container = document.getElementById('rankingContainer');
   const statsEl   = document.getElementById('rankingStats');
   container.innerHTML = '<div class="loading"><div class="spinner"></div> Calculando ranking...</div>';
-  const usersSnap = await getDocs(collection(db, 'usuarios'));
+  try {
+    const usersSnap = await getDocs(collection(db, 'usuarios'));
   const users = [];
   usersSnap.forEach(d => users.push(d.data()));
   const ranking = await Promise.all(users.map(async u => {
@@ -621,6 +639,13 @@ async function renderRanking() {
       </div>
     </div>`;
   }).join('')}</div>`;
+  } catch(err) {
+    console.error('renderRanking:', err);
+    const msg = err.code === 'permission-denied'
+      ? 'Permissão negada. Verifique as regras do Firestore no Firebase Console.'
+      : err.message;
+    container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🔒</div><div class="empty-state-titulo">Não foi possível carregar</div><div class="empty-state-desc">${msg}</div></div>`;
+  }
 }
 
 // ── PRÊMIOS ──
