@@ -24,7 +24,7 @@ export const firebaseConfig = {
 
 // Para descobrir: faça login e abra o console do navegador, o UID aparece no log
 
-export const ADMIN_UID = "SEU_UID_AQUI";
+export const ADMIN_UID = "5aXDIjuTgfZnsmjhzzxYrbJMB8K2";
 
 
 
