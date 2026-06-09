@@ -850,6 +850,20 @@ async function renderAdmin() {
       </div>
 
       <div class="admin-section">
+        <div class="admin-section-titulo">🧪 Dados de Teste</div>
+        <div class="admin-card" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+          <div style="flex:1;font-size:13px;color:var(--texto3);line-height:1.5">
+            Cria 8 participantes fictícios com palpites e pagamentos simulados para visualizar o ranking.<br>
+            <strong style="color:var(--vermelho)">Remova antes de usar em produção.</strong>
+          </div>
+          <div style="display:flex;gap:8px;flex-shrink:0">
+            <button class="btn-inserir" onclick="criarDadosTeste()" style="background:var(--verde4)">➕ Criar fakes</button>
+            <button class="btn-inserir" onclick="removerDadosTeste()" style="background:var(--vermelho)">🗑️ Remover fakes</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="admin-section">
         <div class="admin-section-titulo">👥 Participantes</div>
         <div class="admin-card">
           ${usersComStats.sort((a,b)=>b.gasto-a.gasto).map(u=>`
@@ -928,3 +942,67 @@ window.salvarResultado = salvarResultado;
 
 // ── INIT ──
 window.logout = logout;
+
+// ── DADOS DE TESTE (admin only) ──
+const FAKE_USERS = [
+  { nome: 'Carlos Silva',    email: 'carlos@teste.com',   foto: 'https://i.pravatar.cc/40?u=carlos'  },
+  { nome: 'Ana Souza',       email: 'ana@teste.com',      foto: 'https://i.pravatar.cc/40?u=ana'     },
+  { nome: 'Pedro Oliveira',  email: 'pedro@teste.com',    foto: 'https://i.pravatar.cc/40?u=pedro'   },
+  { nome: 'Juliana Costa',   email: 'juliana@teste.com',  foto: 'https://i.pravatar.cc/40?u=juliana' },
+  { nome: 'Rafael Mendes',   email: 'rafael@teste.com',   foto: 'https://i.pravatar.cc/40?u=rafael'  },
+  { nome: 'Fernanda Lima',   email: 'fernanda@teste.com', foto: 'https://i.pravatar.cc/40?u=fernanda'},
+  { nome: 'Bruno Alves',     email: 'bruno@teste.com',    foto: 'https://i.pravatar.cc/40?u=bruno'   },
+  { nome: 'Camila Torres',   email: 'camila@teste.com',   foto: 'https://i.pravatar.cc/40?u=camila'  },
+];
+
+async function criarDadosTeste() {
+  if (!confirm('Criar 8 usuários de teste com palpites e pagamentos simulados?')) return;
+  showToast('⏳ Criando dados de teste...', 8000);
+
+  // Pega os primeiros 6 jogos do grupo A
+  const jogosTeste = JOGOS_GRUPOS.slice(0, 6);
+
+  for (const u of FAKE_USERS) {
+    const uid = 'fake_' + u.email.split('@')[0];
+
+    // Cria usuário
+    await setDoc(doc(db, 'usuarios', uid), {
+      uid, nome: u.nome, email: u.email, foto: u.foto, fake: true, criadoEm: serverTimestamp(),
+    }, { merge: true });
+
+    // Cria 3-6 palpites pagos com valores aleatórios
+    const qtd = 3 + Math.floor(Math.random() * 4);
+    for (let i = 0; i < qtd; i++) {
+      const jogo  = jogosTeste[i % jogosTeste.length];
+      const gols1 = Math.floor(Math.random() * 4);
+      const gols2 = Math.floor(Math.random() * 4);
+      await setDoc(doc(db, 'palpites', uid, 'jogos', jogo.id), {
+        jogoId: jogo.id, gols1, gols2, fase: 'grupos',
+        pago: true, uid, atualizadoEm: serverTimestamp(),
+      }, { merge: true });
+    }
+  }
+  showToast('✅ Dados de teste criados!');
+  setTimeout(renderAdmin, 1500);
+}
+window.criarDadosTeste = criarDadosTeste;
+
+async function removerDadosTeste() {
+  if (!confirm('Remover TODOS os usuários de teste (fake_*) e seus palpites?')) return;
+  showToast('⏳ Removendo dados de teste...', 6000);
+
+  const usersSnap = await getDocs(collection(db, 'usuarios'));
+  const fakes = [];
+  usersSnap.forEach(d => { if (d.data().fake === true) fakes.push(d.id); });
+
+  for (const uid of fakes) {
+    // Remove palpites
+    const palSnap = await getDocs(collection(db, 'palpites', uid, 'jogos'));
+    await Promise.all(palSnap.docs.map(d => deleteDoc(d.ref)));
+    // Remove usuário
+    await deleteDoc(doc(db, 'usuarios', uid));
+  }
+  showToast(`✅ ${fakes.length} usuário(s) de teste removidos!`);
+  setTimeout(renderAdmin, 1500);
+}
+window.removerDadosTeste = removerDadosTeste;
