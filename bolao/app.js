@@ -1,4 +1,4 @@
-// ── BOLÃO COPA 2026 — v1.5 ──
+// ── BOLÃO COPA 2026 — v1.6 ──
 import { firebaseConfig, ADMIN_UID } from './firebase-config.js';
 import { JOGOS_GRUPOS, GRUPOS, CODIGOS_PAIS, PONTUACAO, CUSTO_PALPITE, DISTRIBUICAO_PREMIO, CHAVEAMENTO_R32 } from './data.js?v=3';
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
@@ -25,11 +25,24 @@ let unsubListeners  = [];
 
 // ── UTILS ──
 function fmtBRL(v) { return 'R$ ' + Number(v).toFixed(2).replace('.', ','); }
-function fmtData(iso) {
-  const d = new Date(iso);
-  return d.toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit' }) + ' ' +
-         d.toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' });
+
+// Extrai data/hora direto da string ISO sem converter fuso — mostra sempre horário de Brasília
+function parseBrasilia(iso) {
+  // "2026-06-11T20:00:00-03:00" → { diaSemana:'Qui', diaMes:'11/06', hora:'20:00' }
+  const match = iso.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/);
+  if (!match) return { diaSemana:'', diaMes:'', hora:'00:00' };
+  const [, ano, mes, dia, h, m] = match;
+  const dias = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  // Calcula dia da semana sem conversão: cria date em UTC com offset -3h compensado
+  const d = new Date(Date.UTC(+ano, +mes-1, +dia, +h+3, +m)); // +3h pra converter BRT→UTC
+  return { diaSemana: dias[d.getUTCDay()], diaMes: `${dia}/${mes}`, hora: `${h}:${m}` };
 }
+
+function fmtData(iso) {
+  const { diaMes, hora } = parseBrasilia(iso);
+  return `${diaMes} ${hora}`;
+}
+
 function jogoAberto(jogo) {
   return Date.now() < new Date(jogo.data).getTime() - 60 * 60 * 1000;
 }
@@ -287,10 +300,7 @@ function renderJogoCard(jogo) {
   const statusTxt = res ? 'Encerrado' : aberto ? 'Aberto' : 'Fechado';
   const statusCls = aberto && !res ? 'aberto' : 'encerrado';
 
-  const d        = new Date(jogo.data);
-  const diaSemana = d.toLocaleDateString('pt-BR', { weekday:'short' }).replace('.','');
-  const diaMes    = d.toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit' });
-  const hora      = d.toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' });
+  const { diaSemana, diaMes, hora } = parseBrasilia(jogo.data);
 
   let palpiteArea = '';
   if (res) {
@@ -815,23 +825,50 @@ async function renderAdmin() {
         </div>
       </div>
 
-      ${pendentes.length ? `
+      <!-- Auditoria completa de pagamentos -->
       <div class="admin-section">
-        <div class="admin-section-titulo">⏳ Pagamentos Pendentes (${pendentes.length})</div>
-        <div class="admin-card">
-          ${pendentes.map(p => `
-            <div class="admin-jogo-row">
-              <div class="admin-jogo-info">
-                <div class="admin-jogo-nome">${p.nome||p.email}</div>
-                <div class="admin-jogo-meta">${p.jogoIds?.length||0} palpites · ${fmtBRL(p.total||0)}</div>
-              </div>
-              <div style="display:flex;gap:8px">
-                <button class="btn-inserir" onclick="aprovarPagamento('${p.id}',${JSON.stringify(p.jogoIds)},'${p.uid}')">✅ Aprovar</button>
-                <button class="btn-inserir" style="background:var(--vermelho)" onclick="rejeitarPagamento('${p.id}')">❌ Rejeitar</button>
-              </div>
-            </div>`).join('')}
+        <div class="admin-section-titulo">💳 Auditoria de Pagamentos (${pagamentos.length})</div>
+        <div class="admin-card" style="padding:0;overflow:hidden">
+          ${pagamentos.length === 0
+            ? `<div class="empty-state" style="padding:24px"><div class="empty-state-desc">Nenhum pagamento ainda</div></div>`
+            : `<table class="audit-table">
+                <thead><tr>
+                  <th>Participante</th><th>Palpites</th><th>Valor</th><th>Status</th><th>Data</th><th>Ação</th>
+                </tr></thead>
+                <tbody>
+                  ${pagamentos.sort((a,b) => {
+                    const ta = a.criadoEm?.seconds || 0;
+                    const tb = b.criadoEm?.seconds || 0;
+                    return tb - ta;
+                  }).map(p => {
+                    const statusMap = { pendente:'🟡 Pendente', aprovado:'🟢 Aprovado', rejeitado:'🔴 Rejeitado' };
+                    const statusCss = { pendente:'audit-pendente', aprovado:'audit-aprovado', rejeitado:'audit-rejeitado' };
+                    const dataPgto = p.criadoEm?.seconds
+                      ? new Date(p.criadoEm.seconds * 1000).toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' })
+                      : '—';
+                    const acoes = p.status === 'pendente'
+                      ? `<div style="display:flex;gap:6px">
+                           <button class="btn-inserir" style="padding:5px 10px;font-size:11px" onclick="aprovarPagamento('${p.id}',${JSON.stringify(p.jogoIds||[])},'${p.uid}')">✅</button>
+                           <button class="btn-inserir" style="padding:5px 10px;font-size:11px;background:var(--vermelho)" onclick="rejeitarPagamento('${p.id}')">❌</button>
+                         </div>`
+                      : `<span style="font-size:11px;color:var(--texto3)">${p.status==='aprovado'?'Aprovado':'Rejeitado'}</span>`;
+                    return `<tr>
+                      <td>
+                        <div style="font-weight:700;font-size:13px">${p.nome||'—'}</div>
+                        <div style="font-size:11px;color:var(--texto3)">${p.email||''}</div>
+                      </td>
+                      <td style="text-align:center;font-weight:700">${p.jogoIds?.length||0}</td>
+                      <td style="font-weight:800;color:var(--verde)">${fmtBRL(p.total||0)}</td>
+                      <td><span class="audit-badge ${statusCss[p.status]||''}">${statusMap[p.status]||p.status}</span></td>
+                      <td style="font-size:11px;color:var(--texto3);white-space:nowrap">${dataPgto}</td>
+                      <td>${acoes}</td>
+                    </tr>`;
+                  }).join('')}
+                </tbody>
+              </table>`
+          }
         </div>
-      </div>` : ''}
+      </div>
 
       <div class="admin-section">
         <div class="admin-section-titulo">⚽ Resultados — Fase de Grupos</div>
