@@ -1,4 +1,4 @@
-// Bolao Copa 2026 - v1.9
+// Bolao Copa 2026 - v2.0
 import { firebaseConfig, ADMIN_UID } from './firebase-config.js';
 import { JOGOS_GRUPOS, GRUPOS, CODIGOS_PAIS, PONTUACAO, CUSTO_PALPITE, DISTRIBUICAO_PREMIO, CHAVEAMENTO_R32 } from './data.js?v=5';
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
@@ -645,8 +645,9 @@ function renderPremios() {
   if (!container) return;
   container.innerHTML = '<div class="loading"><div class="spinner"></div> Calculando premios...</div>';
 
+  var usersData = [];
+
   return getDocs(collection(db, 'usuarios')).then(function(usersSnap) {
-    var usersData = [];
     var docsArr = [];
     usersSnap.forEach(function(d) { docsArr.push(d.data()); });
 
@@ -662,7 +663,6 @@ function renderPremios() {
           }
         });
         usersData.push(Object.assign({}, u, { gasto: gasto }));
-        return gasto;
       });
     }));
   }).then(function() {
@@ -673,7 +673,7 @@ function renderPremios() {
       return Promise.all(usersData.map(function(u) {
         return calcularPontosUsuario(u.uid, fase).then(function(pts) { return { nome: u.nome, pts: pts }; });
       })).then(function(arr) {
-        arr.sort(function(a,b) { return b.pts - a.pts; });
+        arr.sort(function(a, b) { return b.pts - a.pts; });
         return arr[0] && arr[0].pts > 0 ? arr[0] : null;
       });
     }
@@ -682,25 +682,35 @@ function renderPremios() {
       liderFase(null), liderFase('grupos'), liderFase('oitavas'), liderFase('quartas'), liderFase('semi')
     ]).then(function(liders) {
       var premios = [
-        { icon: 'Campeo', titulo: 'Campeao Geral',       desc: 'Melhor pontuacao total',                pct: DISTRIBUICAO_PREMIO.campeao_geral,  lider: liders[0] },
-        { icon: 'Grupos', titulo: 'Rei da Fase de Grupos', desc: 'Melhor pontuacao na fase de grupos',  pct: DISTRIBUICAO_PREMIO.melhor_grupos,  lider: liders[1] },
-        { icon: 'Oitavas',titulo: 'Rei das Oitavas',     desc: 'Melhor pontuacao nas oitavas',          pct: DISTRIBUICAO_PREMIO.melhor_oitavas, lider: liders[2] },
-        { icon: 'Quartas',titulo: 'Rei das Quartas',     desc: 'Melhor pontuacao nas quartas',          pct: DISTRIBUICAO_PREMIO.melhor_quartas, lider: liders[3] },
-        { icon: 'Semi',   titulo: 'Rei da Semifinal',    desc: 'Melhor pontuacao na semifinal',         pct: DISTRIBUICAO_PREMIO.melhor_semi,    lider: liders[4] },
+        { titulo: 'Campeao Geral',         desc: 'Melhor pontuacao total',             pct: DISTRIBUICAO_PREMIO.campeao_geral,  lider: liders[0] },
+        { titulo: 'Rei da Fase de Grupos', desc: 'Melhor pontuacao na fase de grupos', pct: DISTRIBUICAO_PREMIO.melhor_grupos,  lider: liders[1] },
+        { titulo: 'Rei das Oitavas',       desc: 'Melhor pontuacao nas oitavas',       pct: DISTRIBUICAO_PREMIO.melhor_oitavas, lider: liders[2] },
+        { titulo: 'Rei das Quartas',       desc: 'Melhor pontuacao nas quartas',       pct: DISTRIBUICAO_PREMIO.melhor_quartas, lider: liders[3] },
+        { titulo: 'Rei da Semifinal',      desc: 'Melhor pontuacao na semifinal',      pct: DISTRIBUICAO_PREMIO.melhor_semi,    lider: liders[4] },
       ];
 
       container.innerHTML =
-        '<div class="premio-balde"><div class="premio-balde-titulo">Balde Total</div><div class="premio-balde-valor">' + fmtBRL(totalBalde) + '</div><div class="premio-balde-sub">' + totalP + ' participante(s) - atualizado em tempo real</div></div>' +
+        '<div class="premio-balde">' +
+          '<div class="premio-balde-titulo">Balde Total</div>' +
+          '<div class="premio-balde-valor">' + fmtBRL(totalBalde) + '</div>' +
+          '<div class="premio-balde-sub">' + totalP + ' participante(s)</div>' +
+        '</div>' +
         '<div class="premios-grid">' + premios.map(function(p) {
           return '<div class="premio-card">' +
-            '<div class="premio-icon" style="font-size:14px;font-weight:800;color:var(--verde)">' + p.icon + '</div>' +
-            '<div class="premio-info"><div class="premio-titulo">' + p.titulo + '</div><div class="premio-desc">' + p.desc + '</div>' +
-            '<div class="premio-lider">' + (p.lider ? 'Lider: ' + p.lider.nome + ' (' + p.lider.pts + ' pts)' : 'Sem dados ainda') + '</div></div>' +
-            '<div class="premio-valor"><div class="premio-pct">' + Math.round(p.pct * 100) + '%</div><div class="premio-reais">' + fmtBRL(totalBalde * p.pct) + '</div></div>' +
+            '<div class="premio-info">' +
+              '<div class="premio-titulo">' + p.titulo + '</div>' +
+              '<div class="premio-desc">' + p.desc + '</div>' +
+              '<div class="premio-lider">' + (p.lider ? 'Lider: ' + p.lider.nome + ' (' + p.lider.pts + ' pts)' : 'Sem dados ainda') + '</div>' +
+            '</div>' +
+            '<div class="premio-valor">' +
+              '<div class="premio-pct">' + Math.round(p.pct * 100) + '%</div>' +
+              '<div class="premio-reais">' + fmtBRL(totalBalde * p.pct) + '</div>' +
+            '</div>' +
           '</div>';
         }).join('') + '</div>' +
         '<div style="background:var(--cinza-mid);border-radius:var(--radius);padding:16px;text-align:center;margin-top:16px">' +
-        '<strong style="color:var(--verde);font-size:18px">' + totalP + '</strong> participante(s) - <strong style="color:var(--verde)">' + fmtBRL(totalBalde) + '</strong> no balde</div>';
+          '<strong style="color:var(--verde);font-size:18px">' + totalP + '</strong> participante(s) no balde de <strong style="color:var(--verde)">' + fmtBRL(totalBalde) + '</strong>' +
+        '</div>';
     });
   }).catch(function(err) {
     console.error('renderPremios:', err);
