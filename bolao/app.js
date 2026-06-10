@@ -1,4 +1,4 @@
-// Bolao Copa 2026 - v2.0
+// Bolao Copa 2026 - v2.1
 import { firebaseConfig, ADMIN_UID } from './firebase-config.js';
 import { JOGOS_GRUPOS, GRUPOS, CODIGOS_PAIS, PONTUACAO, CUSTO_PALPITE, DISTRIBUICAO_PREMIO, CHAVEAMENTO_R32 } from './data.js?v=5';
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
@@ -207,9 +207,15 @@ function navTo(page) {
   document.querySelectorAll('.menu-item').forEach(function(el) {
     el.classList.toggle('active', el.dataset.page === page);
   });
-  document.querySelectorAll('.page').forEach(function(el) { el.classList.remove('active'); });
+  document.querySelectorAll('.page').forEach(function(el) {
+    el.classList.remove('active');
+    el.classList.add('hidden');
+  });
   var pg = document.getElementById('page-' + page);
-  if (pg) pg.classList.add('active');
+  if (pg) {
+    pg.classList.remove('hidden');
+    pg.classList.add('active');
+  }
 
   var renders = {
     'palpites': renderPalpites,
